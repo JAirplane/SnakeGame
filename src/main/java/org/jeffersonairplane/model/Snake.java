@@ -2,36 +2,41 @@ package org.jeffersonairplane.model;
 
 import java.util.*;
 
-public class Snake {
+class Snake {
     private final Deque<Coordinate> snakeBlocks = new LinkedList<>();
     private Direction currentDir;
-    public Snake(int snakeSize, Coordinate centerBlock, int fieldWidthInBlocks) {
+    public Snake(int snakeSize, int fieldWidthInBlocks, int fieldHeightInBlocks) {
         currentDir = Direction.RIGHT;
 
-        int maxSnakeSize = fieldWidthInBlocks / 2;
-        if(fieldWidthInBlocks % 2 != 0) {
-            ++maxSnakeSize;
-        }
-        int xSnakeCoord = centerBlock.xCoord();
-        for(int i = 0; i < Math.min(snakeSize, maxSnakeSize); i++) {
-            snakeBlocks.addFirst(new Coordinate(xSnakeCoord, centerBlock.yCoord()));
+        int centerXBlock = fieldWidthInBlocks % 2 == 0 ? fieldWidthInBlocks / 2 : fieldWidthInBlocks / 2 + 1;
+        int centerYBlock = fieldHeightInBlocks % 2 == 0 ? fieldHeightInBlocks / 2 : fieldHeightInBlocks / 2 + 1;
+        int xSnakeCoord = centerXBlock;
+
+        for(int i = 0; i < Math.min(snakeSize, centerXBlock); i++) {
+            snakeBlocks.addFirst(new Coordinate(xSnakeCoord, centerYBlock));
             --xSnakeCoord;
         }
     }
     private Direction changeDirection(Direction newDirection) {
-        if((newDirection.equals(Direction.LEFT) && !currentDir.equals(Direction.RIGHT)) ||
+        if(newDirection != null && ((newDirection.equals(Direction.LEFT) && !currentDir.equals(Direction.RIGHT)) ||
                 (newDirection.equals(Direction.RIGHT) && !currentDir.equals(Direction.LEFT)) ||
                 (newDirection.equals(Direction.UP) && !currentDir.equals(Direction.DOWN)) ||
-                (newDirection.equals(Direction.DOWN) && !currentDir.equals(Direction.UP))) {
+                (newDirection.equals(Direction.DOWN) && !currentDir.equals(Direction.UP)))) {
 
             currentDir = newDirection;
         }
         return currentDir;
     }
-    public void grow() {
-        Coordinate tail = snakeBlocks.getFirst();
+    public Direction getCurrentDir() {
+        return currentDir;
+    }
+    public Deque<Coordinate> getSnakeBlocks() {
+        return snakeBlocks;
+    }
+    public void grow() throws Exception {
+        Coordinate tail = snakeBlocks.peekFirst();
         if(tail != null) {
-            snakeBlocks.addFirst(new Coordinate(tail.xCoord(), tail.yCoord()));
+            snakeBlocks.offerFirst(new Coordinate(tail.xCoord(), tail.yCoord()));
         }
     }
 
@@ -48,5 +53,12 @@ public class Snake {
             case DOWN -> newHead = new Coordinate(headXCoord, --headYCoord);
         };
         snakeBlocks.offerLast(newHead);
+    }
+    @Override
+    public boolean equals(Object object) {
+        if(object instanceof Snake snake) {
+            return this.getSnakeBlocks().equals(snake.getSnakeBlocks());
+        }
+        return false;
     }
 }
