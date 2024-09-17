@@ -2,7 +2,7 @@ package org.jeffersonairplane.model;
 
 import java.util.*;
 
-class Snake {
+public class Snake {
     private final Deque<Coordinate> snakeBlocks = new LinkedList<>();
     private Direction currentDir;
     public Snake(int snakeSize, int fieldWidthInBlocks, int fieldHeightInBlocks) {
@@ -33,7 +33,7 @@ class Snake {
     public Deque<Coordinate> getSnakeBlocks() {
         return snakeBlocks;
     }
-    public void grow() throws Exception {
+    public void grow() {
         Coordinate tail = snakeBlocks.peekFirst();
         if(tail != null) {
             snakeBlocks.offerFirst(new Coordinate(tail.xCoord(), tail.yCoord()));
