@@ -2,11 +2,17 @@ package org.jeffersonairplane.model;
 
 import java.util.*;
 
+/**
+ * Snake class implements snake's state, movement and grow
+ */
 public class Snake {
     private final Deque<Coordinate> snakeBlocks = new LinkedList<>();
     private Direction currentDir;
-    public Snake(int snakeSize, int fieldWidthInBlocks, int fieldHeightInBlocks) {
+    public Snake() {
         currentDir = Direction.RIGHT;
+    }
+    public Snake(int snakeSize, int fieldWidthInBlocks, int fieldHeightInBlocks, Direction direction) {
+        currentDir = direction;
 
         int centerXBlock = fieldWidthInBlocks % 2 == 0 ? fieldWidthInBlocks / 2 : fieldWidthInBlocks / 2 + 1;
         int centerYBlock = fieldHeightInBlocks % 2 == 0 ? fieldHeightInBlocks / 2 : fieldHeightInBlocks / 2 + 1;

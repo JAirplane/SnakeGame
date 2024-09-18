@@ -3,13 +3,13 @@ package org.jeffersonairplane.model;
 import java.util.Arrays;
 import java.util.logging.*;
 
-public class GameExecution implements ModelExecution {
+public class GameModelImpl implements GameModel {
     private final int blocksWidth;
     private final int blocksHeight;
     private final Snake snake;
     private PowerUp powerUp;
     private final Logger logger;
-    GameExecution(int pixelWidth, int pixelHeight, int blockSizeInPixels,
+    GameModelImpl(int pixelWidth, int pixelHeight, int blockSizeInPixels,
                   Snake snake, Logger logger) {
         blocksWidth = pixelWidth / blockSizeInPixels;
         blocksHeight = pixelHeight / blockSizeInPixels;
@@ -32,6 +32,8 @@ public class GameExecution implements ModelExecution {
         }
         return false;
     }
+
+    @Override
     public boolean checkCollisions() {
         try {
             return borderCollide() && selfCollide();
@@ -41,6 +43,8 @@ public class GameExecution implements ModelExecution {
             throw new IllegalStateException("Snake head is null");
         }
     }
+
+    @Override
     public boolean powerUpTaken() {
         try {
             if(powerUp == null) return false;
@@ -54,14 +58,22 @@ public class GameExecution implements ModelExecution {
             throw new IllegalStateException("Snake head is null");
         }
     }
-    public boolean gameplayStep(Direction direction) {
-        snake.step(direction);
-        if(checkCollisions()) {
-            return false;
-        }
-        else if(powerUpTaken()) {
-            powerUp.influence(snake);
-        }
-        return true;
+
+    @Override
+    public void powerUpEffect() {
+        if(powerUp == null) return;
+        if(snake == null) throw new NullPointerException("Snake is null");
+        powerUp.influence(snake);
+        powerUp = null;
     }
+
+    @Override
+    public void createPowerUp(PowerUpTypes type, Coordinate coordinate) {
+        if(type == null) return;
+        if(coordinate == null) throw new NullPointerException("PowerUp coordinate creation failed. Null Coordinate.");
+        powerUp = switch (type) {
+            case APPLE -> new Apple(coordinate);
+        };
+    }
+
 }
