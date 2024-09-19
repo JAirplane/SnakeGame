@@ -3,55 +3,60 @@ package org.jeffersonairplane.model;
 import java.util.Arrays;
 import java.util.logging.*;
 
+/**
+ * Model part of MVVM pattern.
+ * Contains data and game logic.
+ */
 public class GameModelImpl implements GameModel {
     private final int blocksWidth;
     private final int blocksHeight;
-    private final Snake snake;
+    private final SnakeManager snakeManager;
     private PowerUp powerUp;
     private final Logger logger;
-    GameModelImpl(int pixelWidth, int pixelHeight, int blockSizeInPixels,
-                  Snake snake, Logger logger) {
-        blocksWidth = pixelWidth / blockSizeInPixels;
-        blocksHeight = pixelHeight / blockSizeInPixels;
-        this.snake = snake;
+	
+	/**
+	 * Constructor converts pixels to blocks
+	 * @param pixelWidth is a width of play field in pixels
+	 * @param pixelHeight is a height of play field in pixels
+	 * @param blockWidthInPixels is a one block width in pixels
+	 * @param blockHeightInPixels is a one block height in pixels
+	 * @param snakeManager control snake {@link org.jeffersonairplane.model.SnakeManager}
+	 * @param logger logs information
+	 */
+    GameModelImpl(int pixelWidth, int pixelHeight, int blockWidthInPixels, int blockHeightInPixels,
+                  SnakeManager snakeManager, Logger logger) {
+        blocksWidth = pixelWidth / blockWidthInPixels;
+        blocksHeight = pixelHeight / blockHeightInPixels;
+        this.snakeManager = snakeManager;
         this.logger = logger;
     }
-    private boolean borderCollide() {
-        Coordinate head = snake.getSnakeBlocks().peekLast();
-        if(head == null) throw new NullPointerException();
-        return head.xCoord() < 1 || head.xCoord() > blocksWidth
-                || head.yCoord() < 1 || head.yCoord() > blocksHeight;
-    }
-    private boolean selfCollide() {
-        Coordinate head = snake.getSnakeBlocks().peekLast();
-        if(head == null) throw new NullPointerException();
-        for(Coordinate snakeBlock: snake.getSnakeBlocks()) {
-            if(head.xCoord() == snakeBlock.xCoord() && head.yCoord() == snakeBlock.yCoord() && snakeBlock != head) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+	
+	/**
+	 * Check if snake collided with a play field borders or itself
+	 * Commonly it is a game over check
+	 * @return true if collided
+	 */
     @Override
     public boolean checkCollisions() {
         try {
-            return borderCollide() && selfCollide();
+            return snakeManager.snakeCollideWithBorders(blocksWidth, blocksHeight) && snakeManager.snakeSelfCollide();
         }
         catch(Exception e) {
             logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
             throw new IllegalStateException("Snake head is null");
         }
     }
-
+	
+	/**
+	 * Check if snake collided with power up
+	 * Does not apply power up effect
+	 * @return true if collided
+	 */
     @Override
     public boolean powerUpTaken() {
         try {
             if(powerUp == null) return false;
-            Coordinate head = snake.getSnakeBlocks().peekLast();
-            if(head == null) throw new NullPointerException("Snake head is null");
-            return head.xCoord() == powerUp.getPoint().xCoord() &&
-                    head.yCoord() == powerUp.getPoint().yCoord();
+            return snakeManager.snakeHeadAt(powerUp.getPoint());
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -62,8 +67,7 @@ public class GameModelImpl implements GameModel {
     @Override
     public void powerUpEffect() {
         if(powerUp == null) return;
-        if(snake == null) throw new NullPointerException("Snake is null");
-        powerUp.influence(snake);
+        snakeManager.changeSnakeState(powerUp::influence);
         powerUp = null;
     }
 
