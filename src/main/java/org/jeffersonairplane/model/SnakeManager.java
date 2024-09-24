@@ -6,6 +6,13 @@ import java.util.function.Consumer;
  * Controls and manage snake.
  */
 public interface SnakeManager {
+	
+	/**
+     * <p>Getter for {@link org.jeffersonairplane.model.Snake} instance.</p>
+	 * @return current snake instance.
+     */
+	public Snake getSnake();
+	
     /**
      * <p>Fills snake blocks, commonly on initialization.</p>
      * @param snakeSize amount of snake blocks to fill.
@@ -14,7 +21,7 @@ public interface SnakeManager {
      * @param fieldWidthInBlocks need to check that snake blocks inside the field.
      * @param fieldHeightInBlocks need to check that snake blocks inside the field.
      */
-    void fillSnake(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks);
+    boolean fillSnake(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks);
     
 	/**
      * <p>Moves snake one step forward in a current snake direction.</p>

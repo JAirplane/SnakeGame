@@ -53,7 +53,7 @@ public class Snake {
     @Override
     public boolean equals(Object object) {
         if(object instanceof Snake snake) {
-            return this.getSnakeBlocks().equals(snake.getSnakeBlocks());
+            return this.getSnakeBlocks().equals(snake.getSnakeBlocks()) && this.getDirection() == snake.getDirection();
         }
         return false;
     }

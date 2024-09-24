@@ -48,6 +48,24 @@ public class GameModelImpl implements GameModel {
     }
 	
 	/**
+	 * Getter for snake instance
+	 * @return Snake instance
+	 */
+	@Override
+	public Snake getSnake() {
+		return snakeManager.getSnake();
+	}
+	
+	/**
+	 * Getter for powerUp instance
+	 * @return PowerUp instance
+	 */
+	@Override
+	public PowerUp getPowerUp() {
+		return powerUp;
+	}
+	
+	/**
 	 * Check if snake collided with power up
 	 * Does not apply power up effect
 	 * @return true if collided
@@ -63,14 +81,20 @@ public class GameModelImpl implements GameModel {
             throw new IllegalStateException("Snake head is null");
         }
     }
-
+	
+	/**
+	 * Applies effect of power up on snake
+	 * @return true if effect worked on snake
+	 */
     @Override
-    public void powerUpEffect() {
-        if(powerUp == null) return;
+    public boolean powerUpEffect() {
+        if(powerUp == null) return false;
         snakeManager.changeSnakeState(powerUp::influence);
         powerUp = null;
+		return true;
     }
 
+	
     @Override
     public void createPowerUp(PowerUpTypes type, Coordinate coordinate) {
         if(type == null) return;

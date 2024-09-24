@@ -1,52 +1,72 @@
 package org.jeffersonairplane.model;
 
+import java.util.*;
+import java.util.stream.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class SnakeTest {
-    Snake snake;
+	
+	private Snake snake;
+	
+	@BeforeEach
+	void snakeInitialize() {
 
-    @BeforeEach
-    void initSnakeInstance() {
-        snake = new Snake(5, 10, 10);
-    }
+		snake = new Snake();
+	}
+	
+	@Test
+	void noArgsConstructorTest() {
+		boolean ans = snake.getSnakeBlocks().isEmpty() && snake.getDirection().equals(Direction.RIGHT);
+		assertTrue(ans);
+	}
+	
+	@ParameterizedTest
+	@EnumSource
+	void getAndSetDirectionTest(Direction direction) {
+		snake.setDirection(direction);
+		assertEquals(snake.getDirection(), direction);
+	}
+	
+	@Test
+	void getSnakeBlocksTest() {
+		Deque<Coordinate> collectionToCompare = new LinkedList<>();
+		Deque<Coordinate> snakeBlocks = snake.getSnakeBlocks();
+		for(int i = 0; i < 10; i++) {
+			Coordinate coord = new Coordinate(i, i + 1);
+			collectionToCompare.offerFirst(coord);
+			snakeBlocks.offerFirst(coord);
+		}
+        assertEquals(snake.getSnakeBlocks(), collectionToCompare);
+	}
 
-    @Test
-    void grow() throws Exception {
-        Snake expected = new Snake(5, 10, 10);
-        Coordinate tail = expected.getSnakeBlocks().peekFirst();
-        assert tail != null;
-        expected.getSnakeBlocks().offerFirst(new Coordinate(tail.xCoord(), tail.yCoord()));
-        snake.grow();
-        assert expected.equals(snake);
-    }
+	static Stream<Arguments> equalsTestSource() {
+		Snake badDirectionSnake = new Snake();
+		badDirectionSnake.setDirection(Direction.LEFT);
 
-    @ParameterizedTest
-    @NullSource
-    @EnumSource(value = Direction.class)
-    void step(Direction direction) {
-        Snake expected = new Snake(5, 10, 10);
-        expected.getSnakeBlocks().pollFirst();
-        Direction newDir = expected.getCurrentDir();
-        if(direction != null && ((newDir.equals(Direction.LEFT) && !direction.equals(Direction.RIGHT)) ||
-                (newDir.equals(Direction.RIGHT) && !direction.equals(Direction.LEFT)) ||
-                (newDir.equals(Direction.UP) && !direction.equals(Direction.DOWN)) ||
-                (newDir.equals(Direction.DOWN) && !direction.equals(Direction.UP)))) {
-            newDir = direction;
-        }
-        int headXCoord = expected.getSnakeBlocks().getLast().xCoord();
-        int headYCoord = expected.getSnakeBlocks().getLast().yCoord();
-        Coordinate newHead = switch(newDir) {
-            case LEFT -> newHead = new Coordinate(--headXCoord, headYCoord);
-            case UP -> newHead = new Coordinate(headXCoord, ++headYCoord);
-            case RIGHT -> newHead = new Coordinate(++headXCoord, headYCoord);
-            case DOWN -> newHead = new Coordinate(headXCoord, --headYCoord);
-        };
-        expected.getSnakeBlocks().offerLast(newHead);
-        snake.step(direction);
-        assert snake.equals(expected);
-    }
+		Snake otherBlocksSnake = new Snake();
+		otherBlocksSnake.getSnakeBlocks().offerFirst(new Coordinate(100, 100));
+
+		Snake estimateEquals = new Snake();
+		for(int i = 0; i < 5; i++) {
+			estimateEquals.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+		}
+		return Stream.of(
+				arguments(estimateEquals, true),
+				arguments(badDirectionSnake, false),
+				arguments(otherBlocksSnake, false)
+		);
+	}
+	@ParameterizedTest
+	@MethodSource("equalsTestSource")
+	void equalsTest(Snake other, boolean ans) {
+		for(int i = 0; i < 5; i++) {
+			snake.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+		}
+		assertEquals(snake.equals(other), ans);
+	}
 }

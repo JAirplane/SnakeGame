@@ -12,6 +12,18 @@ public interface GameModel {
     public boolean checkCollisions();
 	
 	/**
+	 * Getter for snake instance from {@link org.jeffersonairplane.model.SnakeManager}
+	 * @return Snake instance
+	 */
+	public Snake getSnake();
+	
+	/**
+	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
+	 * @return PowerUp instance
+	 */
+	public PowerUp getPowerUp();
+	
+	/**
 	 * Check if snake took some power up.
 	 * @return true if power up taken.
 	 */
@@ -19,8 +31,9 @@ public interface GameModel {
 	
 	/**
 	 * Apply power up effect.
+	 * @return true if power up applied.
 	 */
-    public void powerUpEffect();
+    public boolean powerUpEffect();
 	
 	/**
 	 * Creates new power up on the play field.

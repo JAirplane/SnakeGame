@@ -23,9 +23,21 @@ public class SnakeManagerImpl implements SnakeManager {
 	 * @param snake is an option to create snake externally.
 	 */
     SnakeManagerImpl(Snake snake) {
-
-		this.snake = snake;
+		
+		Snake snakeToSet = snake;
+		if(snakeToSet == null) {
+			snakeToSet = new Snake();
+		}
+		this.snake = snakeToSet;
     }
+	
+	/**
+	 * Getter for {@link org.jeffersonairplane.model.Snake} instance
+	 * @return current {@link org.jeffersonairplane.model.Snake} instance.
+	 */
+	public Snake getSnake() {
+		return snake;
+	}
 	
 	private Coordinate getNextCoordinateToFillSnake(Coordinate current, Direction direction) {
 		if(current == null) throw new NullPointerException("Coordinate is null");
@@ -62,7 +74,7 @@ public class SnakeManagerImpl implements SnakeManager {
 		};
 	}
     /**
-     * <p>Fills snake blocks, commonly on initialization.</p>
+     * <p>Fills {@link org.jeffersonairplane.model.Snake} blocks, commonly on initialization.</p>
      * @param snakeSize           amount of snake blocks to fill.
      * @param head                initial head coordinate on a play field.
      * @param direction           initial snake direction, tail should be created opposite to it.
@@ -70,11 +82,15 @@ public class SnakeManagerImpl implements SnakeManager {
      * @param fieldHeightInBlocks need to check that snake blocks inside the field.
      */
     @Override
-    public void fillSnake(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks) {
+    public boolean fillSnake(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks) {
+		if(head == null || direction == null || snakeSize < 1 || fieldWidthInBlocks < 1 || fieldHeightInBlocks < 1 ||
+			head.xCoord() < 1 || head.xCoord() > fieldWidthInBlocks || head.yCoord() < 1 || head.yCoord() > fieldHeightInBlocks) {
+			return false;
+		}
 		int actualSnakeSize = getActualSnakeSizeToFill(snakeSize, head, direction, fieldWidthInBlocks, fieldHeightInBlocks);
 		snake.setDirection(direction);
 		snake.getSnakeBlocks().clear();
-		Coordinate current = new Coordinate(head);
+		Coordinate current = new Coordinate(head.xCoord(), head.yCoord());
 		snake.getSnakeBlocks().offerFirst(current);
 		Coordinate next = null;
 		
@@ -83,6 +99,7 @@ public class SnakeManagerImpl implements SnakeManager {
             snake.getSnakeBlocks().offerFirst(next);
             current = next;
         }
+		return true;
     }
 
     /**
@@ -131,7 +148,7 @@ public class SnakeManagerImpl implements SnakeManager {
      */
     @Override
     public void changeSnakeState(Consumer<Snake> powerUpEffect) {
-
+		if(powerUpEffect == null) return;
 		powerUpEffect.accept(snake);
     }
 	
@@ -171,6 +188,7 @@ public class SnakeManagerImpl implements SnakeManager {
 	 * @return true if snake's head at coordinate indeed.
      */
 	public boolean snakeHeadAt(Coordinate coordinate) {
+		if(coordinate == null) return false;
 		Coordinate head = snake.getSnakeBlocks().peekLast();
 		if(head == null) throw new NullPointerException("Snake head is null");
 		return head.xCoord() == coordinate.xCoord() && head.yCoord() == coordinate.yCoord();
