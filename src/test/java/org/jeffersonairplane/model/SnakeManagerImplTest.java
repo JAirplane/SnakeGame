@@ -40,10 +40,12 @@ class SnakeManagerImplTest {
 		Snake normalEstimate = new Snake();
 		for(int i = 0; i < 4; i++) {
 			normalEstimate.getSnakeBlocks().offerFirst(new Coordinate(5 + i, 5));
+			normalEstimate.setDirection(Direction.LEFT);
 		}
 		Snake tooLongEstimate = new Snake();
 		for(int i = 0; i < 6; i++) {
 			tooLongEstimate.getSnakeBlocks().offerFirst(new Coordinate(5 + i, 5));
+			tooLongEstimate.setDirection(Direction.LEFT);
 		}
 		
 		return Stream.of(
@@ -74,7 +76,7 @@ class SnakeManagerImplTest {
 		for(int i = 0; i < 5; i++) {
 			estimate.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
 		}
-		assertEquals(snakeManager.getSnake(), estimate);
+        assertEquals(snakeManager.getSnake(), estimate);
 	}
 	
 	@ParameterizedTest
