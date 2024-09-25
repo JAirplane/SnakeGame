@@ -1,17 +1,15 @@
 package org.jeffersonairplane;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import org.jeffersonairplane.view.*;
+
+import java.awt.*;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        var gameSettings = new GameSettings(600, 600, 20, 20, "Snake Game", Color.DARK_GRAY);
+        var gameFrame = new GameFrame(gameSettings.getGameFrameTitle(), gameSettings.getGameWindowWidth(), gameSettings.getGameWindowHeight(),
+                gameSettings.getBlockWidth(), gameSettings.getBlockHeight(), gameSettings.getGameBackgroundColor());
+        var GameView = new GameView(gameFrame);
     }
 }

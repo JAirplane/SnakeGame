@@ -22,7 +22,13 @@ public interface GameModel {
 	 * @return PowerUp instance
 	 */
 	public PowerUp getPowerUp();
-	
+
+	/**
+	 * Getter for {@link org.jeffersonairplane.model.PlayingField} instance
+	 * @return playingField instance
+	 */
+	public PlayingField getPlayingField();
+
 	/**
 	 * Check if snake took some power up.
 	 * @return true if power up taken.

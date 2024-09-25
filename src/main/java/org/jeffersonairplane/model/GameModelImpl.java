@@ -8,25 +8,19 @@ import java.util.logging.*;
  * Contains data and game logic.
  */
 public class GameModelImpl implements GameModel {
-    private final int blocksWidth;
-    private final int blocksHeight;
+	private final PlayingField playingField;
     private final SnakeManager snakeManager;
     private PowerUp powerUp;
     private final Logger logger;
 	
 	/**
 	 * Constructor converts pixels to blocks
-	 * @param pixelWidth is a width of play field in pixels
-	 * @param pixelHeight is a height of play field in pixels
-	 * @param blockWidthInPixels is a one block width in pixels
-	 * @param blockHeightInPixels is a one block height in pixels
+	 * @param playingField contains field width and height in blocks (not pixels)
 	 * @param snakeManager control snake {@link org.jeffersonairplane.model.SnakeManager}
 	 * @param logger logs information
 	 */
-    GameModelImpl(int pixelWidth, int pixelHeight, int blockWidthInPixels, int blockHeightInPixels,
-                  SnakeManager snakeManager, Logger logger) {
-        blocksWidth = pixelWidth / blockWidthInPixels;
-        blocksHeight = pixelHeight / blockHeightInPixels;
+    GameModelImpl(PlayingField playingField, SnakeManager snakeManager, Logger logger) {
+        this.playingField = playingField;
         this.snakeManager = snakeManager;
         this.logger = logger;
     }
@@ -39,7 +33,8 @@ public class GameModelImpl implements GameModel {
     @Override
     public boolean checkCollisions() {
         try {
-            return snakeManager.snakeCollideWithBorders(blocksWidth, blocksHeight) && snakeManager.snakeSelfCollide();
+            return snakeManager.snakeCollideWithBorders(playingField.getFieldWidth(), playingField.getFieldHeight()) && 
+					snakeManager.snakeSelfCollide();
         }
         catch(Exception e) {
             logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -48,7 +43,17 @@ public class GameModelImpl implements GameModel {
     }
 	
 	/**
-	 * Getter for snake instance
+	 * Getter for {@link org.jeffersonairplane.model.PlayingField} instance
+	 * @return playingField instance
+	 */
+	@Override
+	public PlayingField getPlayingField() {
+
+		return playingField;
+	}
+	
+	/**
+	 * Getter for {@link org.jeffersonairplane.model.Snake} instance
 	 * @return Snake instance
 	 */
 	@Override
@@ -57,7 +62,7 @@ public class GameModelImpl implements GameModel {
 	}
 	
 	/**
-	 * Getter for powerUp instance
+	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
 	 * @return PowerUp instance
 	 */
 	@Override
@@ -94,7 +99,11 @@ public class GameModelImpl implements GameModel {
 		return true;
     }
 
-	
+	/**
+	 * Creates new {@link org.jeffersonairplane.model.PowerUp} instance in the game.
+	 * @param type particular type of PowerUp to create.
+	 * @param coordinate of created Power Up.
+	 */
     @Override
     public void createPowerUp(PowerUpTypes type, Coordinate coordinate) {
         if(type == null) return;

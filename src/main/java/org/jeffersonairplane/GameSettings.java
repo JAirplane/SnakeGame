@@ -1,24 +1,51 @@
 package org.jeffersonairplane;
 
+import java.awt.*;
+
 class GameSettings {
-    private final int pixelHeight;
-    private final int pixelWidth;
-    private final int blockSize;
-    GameSettings(int height, int width, int blockSize){
-        pixelHeight = height;
-        pixelWidth = width;
-        this.blockSize = blockSize;
+    private final int gameWindowHeight;
+    private final int gameWindowWidth;
+    private final int blockWidth;
+    private final int blockHeight;
+    private final String gameFrameTitle;
+    private final Color background;
+
+    GameSettings(int width, int height, int blockWidth, int blockHeight, String gameFrameTitle, Color background){
+        gameWindowWidth = width;
+        gameWindowHeight = height;
+        this.blockWidth = blockWidth;
+        this.blockHeight = blockHeight;
+        this.gameFrameTitle = gameFrameTitle;
+        this.background = background;
     }
 
-    public int getPixelWidth() {
-        return pixelWidth;
+    public int getGameWindowWidth() {
+
+        return gameWindowWidth;
     }
 
-    public int getPixelHeight() {
-        return pixelHeight;
+    public int getGameWindowHeight() {
+
+        return gameWindowHeight;
     }
 
-    public int getBlockSize() {
-        return blockSize;
+    public int getBlockWidth() {
+
+        return blockWidth;
+    }
+
+    public int getBlockHeight() {
+
+        return blockHeight;
+    }
+
+    public String getGameFrameTitle() {
+
+        return gameFrameTitle;
+    }
+
+    public Color getGameBackgroundColor() {
+
+        return background;
     }
 }
