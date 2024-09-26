@@ -1,20 +1,9 @@
 package org.jeffersonairplane.view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.util.List;
 
-public class GameFrame extends JFrame {
+public interface GameFrame extends UserInputObservable {
 
-    public GameFrame(String title, int panelWidth, int panelHeight, int blockWidth, int blockHeight, Color background) {
-        var mainGamePanel = new MainGamePanel(panelWidth, panelHeight, blockWidth, blockHeight, background);
-        add(mainGamePanel);
-        addKeyListener(mainGamePanel);
-        setTitle(title);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(false);
-        pack();
-        setVisible(true);
-        setLocationRelativeTo(null);
-
-    }
+    void setSnakeShape(List<RectangleUpperLeftPoint> snakeShape);
+    void repaintGameWindow();
 }

@@ -13,7 +13,7 @@ public class SnakeManagerImpl implements SnakeManager {
 	 * No args constructor.
 	 * Creates empty {@link org.jeffersonairplane.model.Snake} with 0 blocks.
 	 */
-    SnakeManagerImpl() {
+    public SnakeManagerImpl() {
 
 		snake = new Snake();
     }
@@ -22,7 +22,7 @@ public class SnakeManagerImpl implements SnakeManager {
 	 * Constructor
 	 * @param snake is an option to create snake externally.
 	 */
-    SnakeManagerImpl(Snake snake) {
+    public SnakeManagerImpl(Snake snake) {
 		
 		Snake snakeToSet = snake;
 		if(snakeToSet == null) {

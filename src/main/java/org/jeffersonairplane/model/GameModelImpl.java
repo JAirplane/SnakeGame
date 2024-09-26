@@ -8,6 +8,9 @@ import java.util.logging.*;
  * Contains data and game logic.
  */
 public class GameModelImpl implements GameModel {
+	/**
+	 * Model part of MVVM pattern.
+	 */
 	private final PlayingField playingField;
     private final SnakeManager snakeManager;
     private PowerUp powerUp;
@@ -19,7 +22,7 @@ public class GameModelImpl implements GameModel {
 	 * @param snakeManager control snake {@link org.jeffersonairplane.model.SnakeManager}
 	 * @param logger logs information
 	 */
-    GameModelImpl(PlayingField playingField, SnakeManager snakeManager, Logger logger) {
+    public GameModelImpl(PlayingField playingField, SnakeManager snakeManager, Logger logger) {
         this.playingField = playingField;
         this.snakeManager = snakeManager;
         this.logger = logger;
@@ -33,7 +36,7 @@ public class GameModelImpl implements GameModel {
     @Override
     public boolean checkCollisions() {
         try {
-            return snakeManager.snakeCollideWithBorders(playingField.getFieldWidth(), playingField.getFieldHeight()) && 
+            return snakeManager.snakeCollideWithBorders(playingField.blocksAmountWidth(), playingField.blocksAmountHeight()) ||
 					snakeManager.snakeSelfCollide();
         }
         catch(Exception e) {
@@ -59,6 +62,22 @@ public class GameModelImpl implements GameModel {
 	@Override
 	public Snake getSnake() {
 		return snakeManager.getSnake();
+	}
+	
+	/**
+     * <p>Changes current snake direction.</p>
+     * Commonly do nothing if parameter is the same as current snake direction or opposite to it.
+     * @param newDirection sets the direction of snake movement.
+     */
+	public void changeSnakeDirection(Direction newDirection) {
+		snakeManager.changeSnakeDirection(newDirection);
+	}
+	
+	/**
+	 * {@link org.jeffersonairplane.model.Snake} moves one step in its current direction
+	 */
+	public void snakeMove() {
+		snakeManager.snakeStep();
 	}
 	
 	/**

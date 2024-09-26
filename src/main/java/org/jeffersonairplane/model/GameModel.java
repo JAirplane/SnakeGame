@@ -9,42 +9,54 @@ public interface GameModel {
 	 * Check collisions of snake with itself and with field borders.
 	 * @return true if collision actually happened.
 	 */
-    public boolean checkCollisions();
+    boolean checkCollisions();
 	
 	/**
 	 * Getter for snake instance from {@link org.jeffersonairplane.model.SnakeManager}
 	 * @return Snake instance
 	 */
-	public Snake getSnake();
+	Snake getSnake();
+	
+	/**
+	 * {@link org.jeffersonairplane.model.Snake} moves one step in its current direction
+	 */
+	void snakeMove();
+	
+	/**
+     * <p>Changes current snake direction.</p>
+     * Commonly do nothing if parameter is the same as current snake direction or opposite to it.
+     * @param newDirection sets the direction of snake movement.
+     */
+	void changeSnakeDirection(Direction newDirection);
 	
 	/**
 	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
 	 * @return PowerUp instance
 	 */
-	public PowerUp getPowerUp();
+	PowerUp getPowerUp();
 
 	/**
 	 * Getter for {@link org.jeffersonairplane.model.PlayingField} instance
 	 * @return playingField instance
 	 */
-	public PlayingField getPlayingField();
+	PlayingField getPlayingField();
 
 	/**
 	 * Check if snake took some power up.
 	 * @return true if power up taken.
 	 */
-    public boolean powerUpTaken();
+    boolean powerUpTaken();
 	
 	/**
 	 * Apply power up effect.
 	 * @return true if power up applied.
 	 */
-    public boolean powerUpEffect();
+    boolean powerUpEffect();
 	
 	/**
 	 * Creates new power up on the play field.
 	 * @param type is a type of power up to createPowerUp.
 	 * @param coordinate is a coordinate of this power up.
 	 */
-    public void createPowerUp(PowerUpTypes type, Coordinate coordinate);
+    void createPowerUp(PowerUpTypes type, Coordinate coordinate);
 }
