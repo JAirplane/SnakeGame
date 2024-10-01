@@ -35,6 +35,7 @@ public class SnakeManagerImpl implements SnakeManager {
 	 * Getter for {@link org.jeffersonairplane.model.Snake} instance
 	 * @return current {@link org.jeffersonairplane.model.Snake} instance.
 	 */
+	@Override
 	public Snake getSnake() {
 		return snake;
 	}
@@ -80,6 +81,7 @@ public class SnakeManagerImpl implements SnakeManager {
      * @param direction           initial snake direction, tail should be created opposite to it.
      * @param fieldWidthInBlocks  need to check that snake blocks inside the field.
      * @param fieldHeightInBlocks need to check that snake blocks inside the field.
+	 * @return true if snake filled and ready.
      */
     @Override
     public boolean fillSnake(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks) {

@@ -11,7 +11,7 @@ public interface SnakeManager {
      * <p>Getter for {@link org.jeffersonairplane.model.Snake} instance.</p>
 	 * @return current snake instance.
      */
-	public Snake getSnake();
+    Snake getSnake();
 	
     /**
      * <p>Fills snake blocks, commonly on initialization.</p>
@@ -20,6 +20,7 @@ public interface SnakeManager {
      * @param direction initial snake direction, tail should be created opposite to it.
      * @param fieldWidthInBlocks need to check that snake blocks inside the field.
      * @param fieldHeightInBlocks need to check that snake blocks inside the field.
+	 * @return true if snake filled and ready.
      */
     boolean fillSnake(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks);
     
@@ -30,7 +31,6 @@ public interface SnakeManager {
     
 	/**
      * <p>Changes current snake direction.</p>
-     * Commonly do nothing if parameter is the same as current snake direction or opposite to it.
      * @param newDirection sets the direction of snake movement.
 	 * @return true if direction was actually changed.
      */

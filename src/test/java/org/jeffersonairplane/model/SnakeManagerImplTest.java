@@ -74,8 +74,11 @@ class SnakeManagerImplTest {
 		snakeManager.fillSnake(5, new Coordinate(5, 5), Direction.RIGHT, 10, 10);
 		Snake estimate = new Snake();
 		for(int i = 0; i < 5; i++) {
-			estimate.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+			estimate.getSnakeBlocks().offerFirst(new Coordinate(6 - i, 5));
 		}
+		
+		snakeManager.snakeStep();
+		
         assertEquals(snakeManager.getSnake(), estimate);
 	}
 	
@@ -109,7 +112,9 @@ class SnakeManagerImplTest {
 			test.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
 		}
 		estimate.getSnakeBlocks().offerFirst(new Coordinate(1, 5));
+		
 		powerUp.accept(test);
+		
 		assertEquals(test, estimate);
 	}
 	
@@ -126,18 +131,17 @@ class SnakeManagerImplTest {
 		for(int i = 0; i < 5; i++) {
 			test.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
 		}
+		
 		assertEquals(snakeManager.snakeCollideWithBorders(fieldWidth, fieldHeight), answer);
 	}
 	
 	@Test
 	void snakeSelfCollideFalseTest() {
 		Snake test = snakeManager.getSnake();
-		test.getSnakeBlocks().offerFirst(new Coordinate(5, 5));
-		test.getSnakeBlocks().offerFirst(new Coordinate(4, 5));
-		test.getSnakeBlocks().offerFirst(new Coordinate(3, 5));
-		test.getSnakeBlocks().offerFirst(new Coordinate(2, 5));
-		test.getSnakeBlocks().offerFirst(new Coordinate(1, 5));
-		test.getSnakeBlocks().offerFirst(new Coordinate(0, 5));
+		for(int i = 0; i < 6; i++) {
+			test.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+		}
+		
 		assertFalse(snakeManager.snakeSelfCollide());
 	}
 	
@@ -149,6 +153,7 @@ class SnakeManagerImplTest {
 		test.getSnakeBlocks().offerFirst(new Coordinate(4, 4));
 		test.getSnakeBlocks().offerFirst(new Coordinate(5, 4));
 		test.getSnakeBlocks().offerFirst(new Coordinate(5, 5));
+		
 		assertTrue(snakeManager.snakeSelfCollide());
 	}
 	
@@ -167,6 +172,7 @@ class SnakeManagerImplTest {
 		for(int i = 0; i < 5; i++) {
 			test.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
 		}
+		
 		assertEquals(snakeManager.snakeHeadAt(coordinate), answer);
 	}
 }

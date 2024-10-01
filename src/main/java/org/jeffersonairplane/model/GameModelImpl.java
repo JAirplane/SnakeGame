@@ -1,6 +1,7 @@
 package org.jeffersonairplane.model;
 
 import java.util.Arrays;
+import java.util.*;
 import java.util.logging.*;
 
 /**
@@ -11,48 +12,49 @@ public class GameModelImpl implements GameModel {
 	/**
 	 * Model part of MVVM pattern.
 	 */
-	private final PlayingField playingField;
+	private FieldDimension dimension;
     private final SnakeManager snakeManager;
-    private PowerUp powerUp;
+    private List<PowerUp> powerUps;
     private final Logger logger;
 	
 	/**
-	 * Constructor converts pixels to blocks
-	 * @param playingField contains field width and height in blocks (not pixels)
+	 * Constructor converts pixels to blocks.
+	 * @param dimension contains field width and height in blocks (not pixels).
 	 * @param snakeManager control snake {@link org.jeffersonairplane.model.SnakeManager}
-	 * @param logger logs information
+	 * @param logger logs information.
 	 */
-    public GameModelImpl(PlayingField playingField, SnakeManager snakeManager, Logger logger) {
-        this.playingField = playingField;
+    public GameModelImpl(FieldDimension dimension, SnakeManager snakeManager, Logger logger) {
+        this.dimension = dimension;
         this.snakeManager = snakeManager;
         this.logger = logger;
+		powerUps = new ArrayList<>();
     }
 	
 	/**
-	 * Check if snake collided with a play field borders or itself
-	 * Commonly it is a game over check
-	 * @return true if collided
+	 * Check if snake collided with a play field borders or itself.
+	 * Commonly it is a game over check.
+	 * @return true if collided.
 	 */
     @Override
     public boolean checkCollisions() {
         try {
-            return snakeManager.snakeCollideWithBorders(playingField.blocksAmountWidth(), playingField.blocksAmountHeight()) ||
+            return snakeManager.snakeCollideWithBorders(dimension.blocksAmountXAxis(), dimension.getBlocksAmountYAxis()) ||
 					snakeManager.snakeSelfCollide();
         }
-        catch(Exception e) {
+        catch(NullPointerException e) {
             logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
-            throw new IllegalStateException("Snake head is null");
+            throw new NullPointerException("Snake head is null");
         }
     }
 	
 	/**
-	 * Getter for {@link org.jeffersonairplane.model.PlayingField} instance
-	 * @return playingField instance
+	 * Getter for {@link org.jeffersonairplane.model.FieldDimension} instance
+	 * @return {@link org.jeffersonairplane.model.FieldDimension} instance
 	 */
 	@Override
-	public PlayingField getPlayingField() {
+	public FieldDimension getFieldDimension() {
 
-		return playingField;
+		return dimension;
 	}
 	
 	/**
@@ -68,68 +70,88 @@ public class GameModelImpl implements GameModel {
      * <p>Changes current snake direction.</p>
      * Commonly do nothing if parameter is the same as current snake direction or opposite to it.
      * @param newDirection sets the direction of snake movement.
+	 * @return true if direction was changed.
      */
-	public void changeSnakeDirection(Direction newDirection) {
-		snakeManager.changeSnakeDirection(newDirection);
+	@Override
+	public boolean changeSnakeDirection(Direction newDirection) {
+		return snakeManager.changeSnakeDirection(newDirection);
 	}
 	
 	/**
 	 * {@link org.jeffersonairplane.model.Snake} moves one step in its current direction
 	 */
+	@Override
 	public void snakeMove() {
 		snakeManager.snakeStep();
 	}
 	
 	/**
-	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
-	 * @return PowerUp instance
+	 * Getter for collection of {@link org.jeffersonairplane.model.PowerUp} instances.
+	 * @return List<PowerUp> collection of all existed power ups on the playing field.
 	 */
 	@Override
-	public PowerUp getPowerUp() {
-		return powerUp;
+	public List<PowerUp> getPowerUps() {
+		return powerUps;
 	}
 	
 	/**
-	 * Check if snake collided with power up
+	 * Checks if snake head collided with some power up
 	 * Does not apply power up effect
-	 * @return true if collided
+	 * @return Optional<PowerUp> power up is present if exists in the power up collection.
 	 */
     @Override
-    public boolean powerUpTaken() {
+    public Optional<PowerUp> powerUpTaken() {
         try {
-            if(powerUp == null) return false;
-            return snakeManager.snakeHeadAt(powerUp.getPoint());
+            if(powerUps == null) throw new NullPointerException("PowerUp collection is null");
+			for(PowerUp power: powerUps) {
+				if(snakeManager.snakeHeadAt(power.getPoint())) {
+					return Optional.of(power);
+				}
+			}
+			return Optional.empty();
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
-            throw new IllegalStateException("Snake head is null");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 	
 	/**
-	 * Applies effect of power up on snake
-	 * @return true if effect worked on snake
+	 * Applies effect of power up on snake.
+	 * @param powerUp to apply.
+	 * @return true if effect worked on snake.
 	 */
     @Override
-    public boolean powerUpEffect() {
-        if(powerUp == null) return false;
-        snakeManager.changeSnakeState(powerUp::influence);
-        powerUp = null;
-		return true;
+    public boolean powerUpEffect(PowerUp powerUp) {
+		try {
+			if(powerUp == null || !powerUps.contains(powerUp)) return false;
+			snakeManager.changeSnakeState(powerUp::influence);
+			powerUps.remove(powerUp);
+			return true;
+		}
+        catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 
 	/**
 	 * Creates new {@link org.jeffersonairplane.model.PowerUp} instance in the game.
 	 * @param type particular type of PowerUp to create.
 	 * @param coordinate of created Power Up.
+	 * @return true if power up successfully created and added to power up collection.
 	 */
     @Override
-    public void createPowerUp(PowerUpTypes type, Coordinate coordinate) {
-        if(type == null) return;
+    public boolean createPowerUp(PowerUpTypes type, Coordinate coordinate) {
+        if(type == null) return false;
         if(coordinate == null) throw new NullPointerException("PowerUp coordinate creation failed. Null Coordinate.");
-        powerUp = switch (type) {
+        PowerUp powerUp = switch (type) {
             case APPLE -> new Apple(coordinate);
+			default -> null;
         };
+		if(powerUp == null) return false;
+		powerUps.add(powerUp);
+		return true;
     }
 
 }

@@ -23,7 +23,7 @@ public class Main {
         snakeManager.fillSnake(gameSettings.getSnakeSize(), new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
                 Direction.RIGHT, xAxisBlocks, yAxisBlocks);
 
-        GameModel model = new GameModelImpl(new PlayingField(xAxisBlocks, yAxisBlocks),
+        GameModel model = new GameModelImpl(new FieldDimension(xAxisBlocks, yAxisBlocks),
                 snakeManager, Logger.getLogger("Model Logger"));
 
         var gameViewModel = new GameViewModelImpl(view, model, gameSettings.getBlockWidth(), gameSettings.getBlockHeight());
