@@ -12,22 +12,18 @@ import java.util.*;
 
 public class GameViewModelImpl implements GameViewModel {
 	
-	private final int blockWidth;
-    private final int blockHeight;
-	
-	private final GameFrameImpl view;
+	private final GameView view;
 	private final GameModel model;
+	
+	private boolean pause;
 	
 	/**
 	 * All args constructor.
 	 * @param view is a view part of program.
 	 * @param model is a model part of program.
-	 * @param blockWidth is a minimum field block width in pixels.
-	 * @param blockHeight is a minimum field block height in pixels.
 	 */
-	public GameViewModelImpl(GameFrameImpl view, GameModel model, int blockWidth, int blockHeight) {
-		this.blockWidth = blockWidth;
-		this.blockHeight = blockHeight;
+	public GameViewModelImpl(GameView view, GameModel model) {
+
 		this.view = view;
 		this.model = model;
 		
@@ -41,14 +37,13 @@ public class GameViewModelImpl implements GameViewModel {
 	 */
 	@Override
 	public void inputUpdate(KeyEvent key) {
-		Direction snakeDirection = switch(key.getKeyCode()) {
-			case KeyEvent.VK_LEFT -> Direction.LEFT;
-			case KeyEvent.VK_UP -> Direction.DOWN;
-			case KeyEvent.VK_RIGHT -> Direction.RIGHT;
-			case KeyEvent.VK_DOWN -> Direction.UP;
-			default -> null;
+		switch(key.getKeyCode()) {
+			case KeyEvent.VK_LEFT -> model.changeSnakeDirection(Direction.LEFT);
+			case KeyEvent.VK_UP -> model.changeSnakeDirection(Direction.DOWN);
+			case KeyEvent.VK_RIGHT -> model.changeSnakeDirection(Direction.RIGHT);
+			case KeyEvent.VK_DOWN -> model.changeSnakeDirection(Direction.UP);
+			case KeyEvent.VK_SPACE -> pause = !pause;
 		};
-		model.changeSnakeDirection(snakeDirection);
 	}
 	
 	/**
@@ -57,7 +52,11 @@ public class GameViewModelImpl implements GameViewModel {
 	 * @return {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} triangle upper left corner point.
 	 */
 	private RectangleUpperLeftPoint blockToPixelCoordinateConversion(Coordinate blockCoordinate) {
-		return new RectangleUpperLeftPoint((blockCoordinate.xCoord() - 1) * blockWidth, (blockCoordinate.yCoord() - 1) * blockHeight);
+		RectangleDimension blockDimension = view.getBlockDimension();
+		int indentX = view.getIndentX();
+		int indentY = view.getIndentY();
+		return new RectangleUpperLeftPoint(indentX + (blockCoordinate.xCoord() - 1) * blockDimension.width(),
+			indentY + (blockCoordinate.yCoord() - 1) * blockDimension.height());
 	}
 
 	/**
@@ -88,5 +87,22 @@ public class GameViewModelImpl implements GameViewModel {
 		return model.checkCollisions();
 	}
 
-
+	@Override
+	public void runGame() {
+		boolean gameOver = false;
+        while(!gameOver) {
+			try {
+				if(!pause) {
+					drawSnake();
+					snakeMove();
+					gameOver = checkSnakeCollisions();
+				}
+				Thread.sleep(200);
+			}
+			catch (InterruptedException ignored) {}
+			catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+        }
+	}
 }

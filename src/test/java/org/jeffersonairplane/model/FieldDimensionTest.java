@@ -12,7 +12,7 @@ class FieldDimensionTest {
 		int y = Integer.MIN_VALUE;
 		FieldDimension dimension = new FieldDimension(x, y);
 		
-		assertTrue(dimension.blocksAmountXAxis() == x && dimension.getBlocksAmountYAxis() == y);
+		assertTrue(dimension.blocksAmountXAxis() == x && dimension.blocksAmountYAxis() == y);
 	}
 
 }

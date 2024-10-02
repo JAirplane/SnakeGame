@@ -11,18 +11,18 @@ class GameSettings {
      */
     private final int gameWindowHeight;
     private final int gameWindowWidth;
-    private final int blockWidth;
-    private final int blockHeight;
+    private final int blocksAmountXAxis;
+    private final int blocksAmountYAxis;
     private final String gameFrameTitle;
     private final Color background;
     private final int snakeSize;
 
-    GameSettings(int windowWidth, int windowHeight, int blockWidth, int blockHeight, String gameFrameTitle, Color background,
+    GameSettings(int windowWidth, int windowHeight, int blocksAmountXAxis, int blocksAmountYAxis, String gameFrameTitle, Color background,
                  int snakeSize) {
         gameWindowWidth = windowWidth;
         gameWindowHeight = windowHeight;
-        this.blockWidth = blockWidth;
-        this.blockHeight = blockHeight;
+        this.blocksAmountXAxis = blocksAmountXAxis;
+        this.blocksAmountYAxis = blocksAmountYAxis;
         this.gameFrameTitle = gameFrameTitle;
         this.background = background;
         this.snakeSize = snakeSize;
@@ -38,14 +38,14 @@ class GameSettings {
         return gameWindowHeight;
     }
 
-    public int getBlockWidth() {
+    public int getBlocksAmountXAxis() {
 
-        return blockWidth;
+        return blocksAmountXAxis;
     }
 
-    public int getBlockHeight() {
+    public int getBlocksAmountYAxis() {
 
-        return blockHeight;
+        return blocksAmountYAxis;
     }
 
     public String getGameFrameTitle() {

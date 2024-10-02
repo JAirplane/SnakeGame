@@ -21,4 +21,9 @@ public interface GameViewModel extends InputObserver {
      * Checks if {@link org.jeffersonairplane.model.Snake} does not collide with borders or itself.
      */
     boolean checkSnakeCollisions();
+	
+	/**
+     * Quite self explanatory :)
+     */
+	void runGame();
 }

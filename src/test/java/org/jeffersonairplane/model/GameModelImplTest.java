@@ -35,7 +35,7 @@ class GameModelImplTest {
 		for(int i = 0; i < 5; i++) {
 			snakeManager.getSnake().getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
 		}
-		model = new GameModelImpl(new FieldDimension(10, 10), snakeManager, logger);
+		model = new GameModelImpl(new FieldDimension(10, 10), snakeManager);
 	}
 	
 	static Stream<Arguments> checkCollisionsTestSource() {
@@ -81,7 +81,7 @@ class GameModelImplTest {
 		FieldDimension dimension = new FieldDimension(10, 10);
 		
 		assertTrue(dimension.blocksAmountXAxis() == model.getFieldDimension().blocksAmountXAxis() &&
-				dimension.getBlocksAmountYAxis() == model.getFieldDimension().getBlocksAmountYAxis());
+				dimension.blocksAmountYAxis() == model.getFieldDimension().blocksAmountYAxis());
 	}
 	
 	@ParameterizedTest

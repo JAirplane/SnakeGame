@@ -9,24 +9,31 @@ import java.util.List;
 
 public class GameWindow extends JPanel implements KeyListener, UserInputObservable {
 
-    private final int windowWidth;
-    private final int windowHeight;
-    private final int blockWidth;
-    private final int blockHeight;
-    private final Color background;
+    private final RectangleDimension windowDimension;
+	private RectangleDimension blockDimension;
+	private int indentX;
+	private int indentY;
+    private Color background;
 	private List<RectangleUpperLeftPoint> snakeShape;
 	
 	private final List<InputObserver> userInputObservers = new ArrayList<>();
 
-    public GameWindow(int windowWidth, int windowHeight, int blockWidth, int blockHeight, Color background) {
-        this.setPreferredSize(new Dimension(windowWidth, windowHeight));
+    public GameWindow(RectangleDimension windowDimension, int blocksAmountX, int blocksAmountY, Color background) {
+        this.setPreferredSize(new Dimension(windowDimension.width(), windowDimension.height()));
         this.setBackground(background);
-        this.windowWidth = windowWidth;
-        this.windowHeight = windowHeight;
-        this.blockWidth = blockWidth;
-        this.blockHeight = blockHeight;
-        this.background = background;
+        this.windowDimension = windowDimension;
+		this.background = background;
+		
+		setBlockDimension(blocksAmountX, blocksAmountY);
     }
+	
+	public int getIndentX() {
+		return indentX;
+	}
+	
+	public int getIndentY() {
+		return indentY;
+	}
 	
 	@Override
 	public void registerInputObserver(InputObserver obs) {
@@ -47,9 +54,20 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 		}
 	}
 	
-	void setSnakeShape(List<RectangleUpperLeftPoint> snakeShape) {
+	public void setSnakeShape(List<RectangleUpperLeftPoint> snakeShape) {
 
         this.snakeShape = snakeShape;
+	}
+
+	public RectangleDimension getBlockDimension() {
+		return blockDimension;
+	}
+
+	public void setBlockDimension(int blocksAmountX, int blocksAmountY) {
+		if(windowDimension == null) throw new NullPointerException();
+		blockDimension = new RectangleDimension(windowDimension.width() / blocksAmountX, windowDimension.height() / blocksAmountY);
+        indentX = (windowDimension.width() - blockDimension.width() * blocksAmountX) / 2;
+		indentY = (windowDimension.height() - blockDimension.height() * blocksAmountY) / 2;
 	}
 	
     @Override
@@ -60,20 +78,22 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 
     }
 	
-	void drawGrid(Graphics graphics) {
-		for(int i = 0; i < windowWidth / blockWidth; i++) {
-            graphics.drawLine(i * blockWidth, 0, i * blockWidth, windowHeight);
+	public void drawGrid(Graphics graphics) {
+		for(int i = 0; i <= windowDimension.width() / blockDimension.width(); i++) {
+            graphics.drawLine(indentX + i * blockDimension.width(), indentY,
+					indentX + i * blockDimension.width(), windowDimension.height() - indentY);
         }
-        for(int i = 0; i < windowHeight / blockHeight; i++) {
-            graphics.drawLine(0, i * blockHeight, windowWidth, i * blockHeight);
+        for(int i = 0; i <= windowDimension.height() / blockDimension.height(); i++) {
+            graphics.drawLine(indentX, indentY + i * blockDimension.height(),
+					windowDimension.width() - indentX, indentY + i * blockDimension.height());
         }
 	}
 	
-	void drawSnakeShape(Graphics graphics) {
+	public void drawSnakeShape(Graphics graphics) {
 		if(snakeShape == null || snakeShape.isEmpty()) return;
         for(var point: snakeShape) {
             graphics.setColor(Color.GREEN);
-            graphics.fillRect(point.x(), point.y(), blockWidth, blockHeight);
+            graphics.fillRect(point.x(), point.y(), blockDimension.width(), blockDimension.height());
         }
 	}
 	

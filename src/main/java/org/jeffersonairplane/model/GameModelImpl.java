@@ -15,18 +15,17 @@ public class GameModelImpl implements GameModel {
 	private FieldDimension dimension;
     private final SnakeManager snakeManager;
     private List<PowerUp> powerUps;
-    private final Logger logger;
+    private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	/**
 	 * Constructor converts pixels to blocks.
 	 * @param dimension contains field width and height in blocks (not pixels).
 	 * @param snakeManager control snake {@link org.jeffersonairplane.model.SnakeManager}
-	 * @param logger logs information.
 	 */
-    public GameModelImpl(FieldDimension dimension, SnakeManager snakeManager, Logger logger) {
+    public GameModelImpl(FieldDimension dimension, SnakeManager snakeManager) {
         this.dimension = dimension;
         this.snakeManager = snakeManager;
-        this.logger = logger;
+
 		powerUps = new ArrayList<>();
     }
 	
@@ -38,7 +37,7 @@ public class GameModelImpl implements GameModel {
     @Override
     public boolean checkCollisions() {
         try {
-            return snakeManager.snakeCollideWithBorders(dimension.blocksAmountXAxis(), dimension.getBlocksAmountYAxis()) ||
+            return snakeManager.snakeCollideWithBorders(dimension.blocksAmountXAxis(), dimension.blocksAmountYAxis()) ||
 					snakeManager.snakeSelfCollide();
         }
         catch(NullPointerException e) {
