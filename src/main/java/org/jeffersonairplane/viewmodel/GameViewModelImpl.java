@@ -19,7 +19,7 @@ public class GameViewModelImpl implements GameViewModel {
 
 	private int snakeMoveDelay;
 	private long framesElapsed;
-	private boolean pause;
+	private volatile boolean pause;
 
 	private BlockingQueue<Integer> frameStorage;
 	/**
@@ -111,8 +111,10 @@ public class GameViewModelImpl implements GameViewModel {
 		frames.start();
         while(!gameOver) {
 			try {
+				//System.out.println("Outside pause block");
 				if(!pause) {
 					framesElapsed += frameStorage.take();
+					System.out.println("Frame taken from queue");
 					if(framesElapsed % snakeMoveDelay == 0) {
 						drawSnake();
 						snakeMove();

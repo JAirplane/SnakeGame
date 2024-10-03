@@ -79,6 +79,7 @@ public class GameViewImpl implements GameView {
 			try {
 				Thread.sleep(frameInMilliseconds);
 				frameStorage.put(1);
+				System.out.println("Frame added to queue");
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
