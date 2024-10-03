@@ -60,7 +60,7 @@ class GameModelImplTest {
 	
 	@Test
 	void checkCollisionsExceptionTest() {
-		when(snakeManager.snakeCollideWithBorders(anyInt(), anyInt())).thenThrow(new NullPointerException());
+		when(snakeManager.snakeCollideWithBorders(anyInt(), anyInt())).thenThrow(new NullPointerException("OK Test Exception"));
 		
 		assertThrows(NullPointerException.class, () -> model.checkCollisions(), "model.checkCollisions() do not throw exception");
 	}

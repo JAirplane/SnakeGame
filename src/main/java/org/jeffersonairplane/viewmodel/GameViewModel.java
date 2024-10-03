@@ -21,9 +21,13 @@ public interface GameViewModel extends InputObserver {
      * Checks if {@link org.jeffersonairplane.model.Snake} does not collide with borders or itself.
      */
     boolean checkSnakeCollisions();
-	
+
+    /**
+     * Start or stops elapsed gameplay time counting.
+     */
+    void stopTimeCounting();
 	/**
-     * Quite self explanatory :)
+     * Quite self-explanatory :)
      */
 	void runGame();
 }

@@ -8,5 +8,7 @@ public interface GameView extends UserInputObservable {
 	int getIndentX();
 	int getIndentY();
     RectangleDimension getBlockDimension();
+    void setKeepFrameCounting(boolean countFrames);
+    void runFrameCounter();
     void repaintGameWindow();
 }

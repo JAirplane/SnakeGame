@@ -16,8 +16,9 @@ public class Main {
 		int yAxisBlocks = gameSettings.getBlocksAmountYAxis();
 		
         var gameWindow = new GameWindow(windowDimension, xAxisBlocks, yAxisBlocks, gameSettings.getGameBackgroundColor());
-		
-		var view = new GameViewImpl(gameSettings.getGameFrameTitle(), gameWindow);
+
+        var frameCounterQueue = new ArrayBlockingQueue<Integer>(1);
+		var view = new GameViewImpl(gameSettings.getGameFrameTitle(), gameWindow, 33, frameCounterQueue);
 
         SnakeManager snakeManager = new SnakeManagerImpl();
         snakeManager.fillSnake(gameSettings.getSnakeSize(), new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
@@ -25,15 +26,16 @@ public class Main {
 
         GameModel model = new GameModelImpl(new FieldDimension(xAxisBlocks, yAxisBlocks), snakeManager);
 
-        var gameViewModel = new GameViewModelImpl(view, model);
+        var gameViewModel = new GameViewModelImpl(view, model, 7, frameCounterQueue);
 
-        try (var executorService = Executors.newSingleThreadExecutor()) {
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    gameViewModel.runGame();
-                }
-            });
+        Thread game = new Thread(gameViewModel::runGame);
+        Thread frameCount = new Thread(view);
+        frameCount.start();
+        game.start();
+        try {
+            game.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

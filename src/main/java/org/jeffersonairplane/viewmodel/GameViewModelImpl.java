@@ -5,6 +5,8 @@ import org.jeffersonairplane.model.*;
 
 import java.awt.event.KeyEvent;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
 
 /**
  * ViewModel of MVVM pattern.
@@ -14,19 +16,24 @@ public class GameViewModelImpl implements GameViewModel {
 	
 	private final GameView view;
 	private final GameModel model;
-	
+
+	private int snakeMoveDelay;
+	private long framesElapsed;
 	private boolean pause;
-	
+
+	private BlockingQueue<Integer> frameStorage;
 	/**
 	 * All args constructor.
 	 * @param view is a view part of program.
 	 * @param model is a model part of program.
+	 * @param snakeMoveDelay is how frames passed until snake makes a step.
+	 * @param frameStorage stores a one frame passed in milliseconds.
 	 */
-	public GameViewModelImpl(GameView view, GameModel model) {
-
+	public GameViewModelImpl(GameView view, GameModel model, int snakeMoveDelay, BlockingQueue<Integer> frameStorage) {
+		this.frameStorage = frameStorage;
 		this.view = view;
 		this.model = model;
-		
+		this.snakeMoveDelay = snakeMoveDelay;
 		view.registerInputObserver(this);
 	}
 	
@@ -87,22 +94,34 @@ public class GameViewModelImpl implements GameViewModel {
 		return model.checkCollisions();
 	}
 
+	/**
+	 * Start or stops elapsed gameplay time counting.
+	 * It is necessary to stop counting after every game over to shut down executor.
+	 */
+	@Override
+	public void stopTimeCounting() {
+		view.setKeepFrameCounting(false);
+	}
+
 	@Override
 	public void runGame() {
 		boolean gameOver = false;
+		//new Thread((GameViewImpl)view).start();
         while(!gameOver) {
 			try {
 				if(!pause) {
-					drawSnake();
-					snakeMove();
-					gameOver = checkSnakeCollisions();
+					framesElapsed += frameStorage.take();
+					if(framesElapsed % snakeMoveDelay == 0) {
+						drawSnake();
+						snakeMove();
+						gameOver = checkSnakeCollisions();
+					}
 				}
-				Thread.sleep(200);
 			}
-			catch (InterruptedException ignored) {}
 			catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
         }
+		stopTimeCounting();
 	}
 }
