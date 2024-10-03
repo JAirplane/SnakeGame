@@ -106,7 +106,9 @@ public class GameViewModelImpl implements GameViewModel {
 	@Override
 	public void runGame() {
 		boolean gameOver = false;
-		new Thread(view::runFrameCounter).start();
+		Thread frames = new Thread(view::runFrameCounter);
+		frames.setName("Frame counter");
+		frames.start();
         while(!gameOver) {
 			try {
 				if(!pause) {

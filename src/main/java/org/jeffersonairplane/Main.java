@@ -29,6 +29,7 @@ public class Main {
         var gameViewModel = new GameViewModelImpl(view, model, 5, frameCounterQueue);
 
         Thread game = new Thread(gameViewModel::runGame);
+        game.setName("Run game");
         game.start();
         try {
             game.join();
