@@ -26,11 +26,9 @@ public class Main {
 
         GameModel model = new GameModelImpl(new FieldDimension(xAxisBlocks, yAxisBlocks), snakeManager);
 
-        var gameViewModel = new GameViewModelImpl(view, model, 7, frameCounterQueue);
+        var gameViewModel = new GameViewModelImpl(view, model, 5, frameCounterQueue);
 
         Thread game = new Thread(gameViewModel::runGame);
-        Thread frameCount = new Thread(view);
-        frameCount.start();
         game.start();
         try {
             game.join();

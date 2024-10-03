@@ -5,13 +5,13 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
-public class GameViewImpl implements GameView, Runnable {
+public class GameViewImpl implements GameView {
 	
 	private final GameFrame frame;
 	private final GameWindow window;
 
 	private final int frameInMilliseconds;
-	private boolean keepFrameCounting;
+	private boolean keepFrameCounting = true;
 
 	BlockingQueue<Integer> frameStorage;
 	private final Logger logger = Logger.getLogger(getClass().getName());
@@ -75,21 +75,6 @@ public class GameViewImpl implements GameView, Runnable {
 
 	@Override
 	public void runFrameCounter() {
-		while(keepFrameCounting) {
-			try {
-				Thread.sleep(frameInMilliseconds);
-				frameStorage.put(1);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-
-	/**
-	 * Runs this operation.
-	 */
-	@Override
-	public void run() {
 		while(keepFrameCounting) {
 			try {
 				Thread.sleep(frameInMilliseconds);
