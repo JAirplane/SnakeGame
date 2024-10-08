@@ -5,11 +5,10 @@ import org.jeffersonairplane.model.*;
 
 import java.awt.event.KeyEvent;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
 
 /**
  * ViewModel of MVVM pattern.
+ * Manages view and model part.
  */
 
 public class GameViewModelImpl implements GameViewModel {
@@ -17,23 +16,17 @@ public class GameViewModelImpl implements GameViewModel {
 	private final GameView view;
 	private final GameModel model;
 
-	private int snakeMoveDelay;
-	private long framesElapsed;
-	private volatile boolean pause;
-
-	private BlockingQueue<Integer> frameStorage;
+	private boolean pause;
+	
 	/**
 	 * All args constructor.
 	 * @param view is a view part of program.
 	 * @param model is a model part of program.
-	 * @param snakeMoveDelay is how frames passed until snake makes a step.
-	 * @param frameStorage stores a one frame passed in milliseconds.
 	 */
-	public GameViewModelImpl(GameView view, GameModel model, int snakeMoveDelay, BlockingQueue<Integer> frameStorage) {
-		this.frameStorage = frameStorage;
+	public GameViewModelImpl(GameView view, GameModel model) {
 		this.view = view;
 		this.model = model;
-		this.snakeMoveDelay = snakeMoveDelay;
+
 		view.registerInputObserver(this);
 	}
 	
@@ -58,7 +51,7 @@ public class GameViewModelImpl implements GameViewModel {
 	 * @param blockCoordinate is a particular rectangle on the grid.
 	 * @return {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} triangle upper left corner point.
 	 */
-	private RectangleUpperLeftPoint blockToPixelCoordinateConversion(Coordinate blockCoordinate) {
+	public RectangleUpperLeftPoint blockToPixelCoordinateConversion(Coordinate blockCoordinate) {
 		RectangleDimension blockDimension = view.getBlockDimension();
 		int indentX = view.getIndentX();
 		int indentY = view.getIndentY();
@@ -69,63 +62,53 @@ public class GameViewModelImpl implements GameViewModel {
 	/**
 	 * Converts snake blocks to points and sends List of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} to View.
 	 */
-	@Override
-	public void drawSnake() {
+	public void setSnakeDataForPainting() {
 		var snakeForPainting = new ArrayList<RectangleUpperLeftPoint>();
 		for(Coordinate coordinate : model.getSnake().getSnakeBlocks()) {
 			snakeForPainting.add(blockToPixelCoordinateConversion(coordinate));
 		}
 		view.setSnakeShape(snakeForPainting);
+	}
+	
+	/**
+	 * Converts power up blocks to points and sends List of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} to View.
+	 */
+	public void setPowerUpsDataForPainting() {
+		var powerUpsForPainting = new ArrayList<RectangleUpperLeftPoint>();
+		for(var powerUp : model.getPowerUps()) {
+			powerUpsForPainting.add(blockToPixelCoordinateConversion(powerUp.getPoint()));
+		}
+		view.setPowerUps(powerUpsForPainting);
+	}
+	
+	/**
+	 * Redraws playingfield, snake and power ups.
+	 */
+	@Override
+	public void drawGame() {
+		setSnakeDataForPainting();
+		setPowerUpsDataForPainting();
 		view.repaintGameWindow();
 	}
 	/**
-	 * Moves snake instance one step forward
+	 * Represents one frame game iteration: logic + painting.
 	 */
 	@Override
-	public void snakeMove() {
-		model.snakeMove();
-	}
-
-	/**
-	 * Checks if {@link Snake} does not collide with borders or itself.
-	 */
-	@Override
-	public boolean checkSnakeCollisions() {
-		return model.checkCollisions();
-	}
-
-	/**
-	 * Start or stops elapsed gameplay time counting.
-	 * It is necessary to stop counting after every game over to shut down executor.
-	 */
-	@Override
-	public void stopTimeCounting() {
-		view.setKeepFrameCounting(false);
-	}
-
-	@Override
-	public void runGame() {
+	public boolean gameOneFrame() {
 		boolean gameOver = false;
-		Thread frames = new Thread(view::runFrameCounter);
-		frames.setName("Frame counter");
-		frames.start();
-        while(!gameOver) {
-			try {
-				//System.out.println("Outside pause block");
-				if(!pause) {
-					framesElapsed += frameStorage.take();
-					System.out.println("Frame taken from queue");
-					if(framesElapsed % snakeMoveDelay == 0) {
-						drawSnake();
-						snakeMove();
-						gameOver = checkSnakeCollisions();
-					}
+		try {
+			if(!pause) {
+				gameOver = model.oneFrameGameAction();
+				if(!gameOver) {
+					drawGame();
 				}
+				return gameOver;
 			}
-			catch (Exception e) {
-				System.out.println(e.getMessage());
-			}
-        }
-		stopTimeCounting();
-	}
+			return false;
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException();
+		}
+    }
 }

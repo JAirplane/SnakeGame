@@ -15,6 +15,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	private int indentY;
     private Color background;
 	private List<RectangleUpperLeftPoint> snakeShape;
+	private List<RectangleUpperLeftPoint> powerUps;
 	
 	private final List<InputObserver> userInputObservers = new ArrayList<>();
 
@@ -55,8 +56,11 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	}
 	
 	public void setSnakeShape(List<RectangleUpperLeftPoint> snakeShape) {
-
         this.snakeShape = snakeShape;
+	}
+	
+	public void setPowerUps(List<RectangleUpperLeftPoint> powerUps) {
+        this.powerUps = powerUps;
 	}
 
 	public RectangleDimension getBlockDimension() {
@@ -96,6 +100,15 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
             graphics.fillRect(point.x(), point.y(), blockDimension.width(), blockDimension.height());
         }
 	}
+	
+	public void drawPowerUps(Graphics graphics) {
+		if(powerUps == null || powerUps.isEmpty()) return;
+        for(var point: powerUps) {
+            graphics.setColor(Color.RED);
+            graphics.fillOval(point.x(), point.y(), blockDimension.width(), blockDimension.height());
+        }
+	}
+	
 	
     @Override
     public void keyTyped(KeyEvent e) {}

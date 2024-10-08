@@ -5,36 +5,76 @@ import org.jeffersonairplane.model.*;
 import org.jeffersonairplane.viewmodel.*;
 
 import java.awt.*;
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Main {
+	
+	public static Properties getProperties() {
+		try {
+			var classLoader = Thread.currentThread().getContextClassLoader().getResource("");
+			if(classLoader == null) throw new NullPointerException("Class loader is null");
+            String rootPath = classLoader.getPath();
+			String appConfigPath = rootPath + "application.properties";
+			Properties props = new Properties();
+			props.load(new FileInputStream(appConfigPath));
+			return props;
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException();
+		}
+    }
+	
+	public static void setPowerUpTypesWeights(Properties props) {
+		PowerUpTypes.APPLE.setCreationPercentage(Integer.parseInt(props.getProperty("pu_apple")));
+	}
+	
     public static void main(String[] args) {
 
-        var gameSettings = new GameSettings(619, 619, 20, 20, "Snake Game", Color.DARK_GRAY, 5);
-		var windowDimension = new RectangleDimension(gameSettings.getGameWindowWidth(), gameSettings.getGameWindowHeight());
-		int xAxisBlocks = gameSettings.getBlocksAmountXAxis();
-		int yAxisBlocks = gameSettings.getBlocksAmountYAxis();
+		Properties props = getProperties();
+		setPowerUpTypesWeights(props);
 		
-        var gameWindow = new GameWindow(windowDimension, xAxisBlocks, yAxisBlocks, gameSettings.getGameBackgroundColor());
+		var windowDimension = new RectangleDimension(
+				Integer.parseInt(props.getProperty("window_width")),
+				Integer.parseInt(props.getProperty("window_height")));
+		int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
+		int yAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_y"));
 
-        var frameCounterQueue = new ArrayBlockingQueue<Integer>(1);
-		var view = new GameViewImpl(gameSettings.getGameFrameTitle(), gameWindow, 33, frameCounterQueue);
+		GameViewImpl view = null;
+		try {
+			Field field = Class.forName("java.awt.Color").getField(props.getProperty("background_color"));
+			var gameWindow = new GameWindow(windowDimension, xAxisBlocks, yAxisBlocks, (Color)field.get(null));
+			view = new GameViewImpl(props.getProperty("game_frame_title"), gameWindow);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException(e);
+		}
 
         SnakeManager snakeManager = new SnakeManagerImpl();
-        snakeManager.fillSnake(gameSettings.getSnakeSize(), new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
-                Direction.RIGHT, xAxisBlocks, yAxisBlocks);
+        snakeManager.fillSnake(
+				Integer.parseInt(props.getProperty("initial_snake_size")),
+				new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
+                Direction.RIGHT,
+				xAxisBlocks,
+				yAxisBlocks);
 
-        GameModel model = new GameModelImpl(new FieldDimension(xAxisBlocks, yAxisBlocks), snakeManager);
+        GameModel model = new GameModelImpl(
+				new FieldDimension(xAxisBlocks, yAxisBlocks),
+				snakeManager,
+				Integer.parseInt(props.getProperty("snake_move_delay")),
+				Integer.parseInt(props.getProperty("pu_number_limit")),
+				Integer.parseInt(props.getProperty("pu_creation_delay_min")),
+				Integer.parseInt(props.getProperty("pu_creation_delay_max")));
 
-        var gameViewModel = new GameViewModelImpl(view, model, 5, frameCounterQueue);
+        var gameViewModel = new GameViewModelImpl(view, model);
 
-        Thread game = new Thread(gameViewModel::runGame);
-        game.setName("Run game");
-        game.start();
-        try {
-            game.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+		int frameMilliseconds = Integer.parseInt(props.getProperty("frame_milliseconds"));
+
+		try(var executor = Executors.newScheduledThreadPool(1)) {
+			executor.scheduleAtFixedRate(gameViewModel::gameOneFrame, 0, frameMilliseconds, TimeUnit.MILLISECONDS);
+		};
     }
 }

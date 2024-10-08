@@ -2,7 +2,6 @@ package org.jeffersonairplane.view;
 
 import java.awt.event.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.logging.*;
 
 public class GameViewImpl implements GameView {
@@ -10,15 +9,9 @@ public class GameViewImpl implements GameView {
 	private final GameFrame frame;
 	private final GameWindow window;
 
-	private final int frameInMilliseconds;
-	private boolean keepFrameCounting = true;
-
-	BlockingQueue<Integer> frameStorage;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	public GameViewImpl(String frameTitle, GameWindow window, int frameInMilliseconds, BlockingQueue<Integer> frameStorage) {
-        this.frameInMilliseconds = frameInMilliseconds;
-        this.frameStorage = frameStorage;
+	public GameViewImpl(String frameTitle, GameWindow window) {
         if(window == null) {
 			String msg = "GameFrame creation failed. GameWindow arg is null.";
 			logger.log(Level.SEVERE, msg);
@@ -47,6 +40,11 @@ public class GameViewImpl implements GameView {
 	public void setSnakeShape(List<RectangleUpperLeftPoint> snakeShape) {
 		window.setSnakeShape(snakeShape);
 	}
+
+	@Override
+	public void setPowerUps(List<RectangleUpperLeftPoint> powerUps) {
+		window.setPowerUps(powerUps);
+	}
 	
 	@Override
 	public int getIndentX() {
@@ -64,25 +62,7 @@ public class GameViewImpl implements GameView {
 	}
 
 	@Override
-	public void setKeepFrameCounting(boolean countFrames) {
-		keepFrameCounting = countFrames;
-	}
-
-	@Override
 	public void repaintGameWindow() {
 		frame.repaintGameWindow();
-	}
-
-	@Override
-	public void runFrameCounter() {
-		while(keepFrameCounting) {
-			try {
-				Thread.sleep(frameInMilliseconds);
-				frameStorage.put(1);
-				System.out.println("Frame added to queue");
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
 	}
 }

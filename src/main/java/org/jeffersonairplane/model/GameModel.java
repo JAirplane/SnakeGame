@@ -19,11 +19,11 @@ public interface GameModel {
 	 */
 	Snake getSnake();
 
-	/**
-	 * Getter for {@link org.jeffersonairplane.model.FieldDimension} instance
-	 * @return playingField instance
-	 */
-	public FieldDimension getFieldDimension();
+//	/**
+//	 * Getter for {@link org.jeffersonairplane.model.FieldDimension} instance
+//	 * @return playingField instance
+//	 */
+//	public FieldDimension getFieldDimension();
 	
 	/**
 	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
@@ -64,4 +64,6 @@ public interface GameModel {
 	 * @param coordinate is a coordinate of this power up.
 	 */
     boolean createPowerUp(PowerUpTypes type, Coordinate coordinate);
+
+	boolean oneFrameGameAction();
 }

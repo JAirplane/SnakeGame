@@ -4,30 +4,17 @@ import org.jeffersonairplane.view.*;
 
 /**
  * ViewModel of MVVM pattern.
+ * Input observer registered on view side to listen to user key inputs.
  */
 public interface GameViewModel extends InputObserver {
-
-    /**
-     * Converts snake blocks to points and sends List of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} to View.
-     */
-    void drawSnake();
-
-    /**
-     * Moves {@link org.jeffersonairplane.model.Snake} instance one step forward.
-     */
-    void snakeMove();
-
-    /**
-     * Checks if {@link org.jeffersonairplane.model.Snake} does not collide with borders or itself.
-     */
-    boolean checkSnakeCollisions();
-
-    /**
-     * Start or stops elapsed gameplay time counting.
-     */
-    void stopTimeCounting();
+	
 	/**
-     * Quite self-explanatory :)
+     * Draws playingfield, snake and power ups.
      */
-	void runGame();
+	void drawGame();
+
+	/**
+     * Represents one frame game iteration: logic + painting.
+     */
+	boolean gameOneFrame();
 }
