@@ -19,7 +19,7 @@ public class GameViewModelImpl implements GameViewModel {
 	private boolean pause;
 	
 	/**
-	 * All args constructor.
+	 * Constructor.
 	 * @param view is a view part of program.
 	 * @param model is a model part of program.
 	 */
@@ -82,7 +82,7 @@ public class GameViewModelImpl implements GameViewModel {
 	}
 	
 	/**
-	 * Redraws playingfield, snake and power ups.
+	 * Redraws playing field, snake and power ups.
 	 */
 	@Override
 	public void drawGame() {

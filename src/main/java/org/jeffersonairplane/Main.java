@@ -29,7 +29,7 @@ public class Main {
     }
 	
 	public static void setPowerUpTypesWeights(Properties props) {
-		PowerUpTypes.APPLE.setCreationPercentage(Integer.parseInt(props.getProperty("pu_apple")));
+		PowerUpTypes.APPLE.setCreationChance(Integer.parseInt(props.getProperty("pu_apple")));
 	}
 	
     public static void main(String[] args) {
@@ -60,21 +60,22 @@ public class Main {
                 Direction.RIGHT,
 				xAxisBlocks,
 				yAxisBlocks);
-
+		PowerUpManager powerUpManager = new PowerUpManagerImpl(
+				Integer.parseInt(props.getProperty("pu_number_limit")),
+				Integer.parseInt(props.getProperty("pu_creation_delay_min")),
+				Integer.parseInt(props.getProperty("pu_creation_delay_max")));
         GameModel model = new GameModelImpl(
 				new FieldDimension(xAxisBlocks, yAxisBlocks),
 				snakeManager,
 				Integer.parseInt(props.getProperty("snake_move_delay")),
-				Integer.parseInt(props.getProperty("pu_number_limit")),
-				Integer.parseInt(props.getProperty("pu_creation_delay_min")),
-				Integer.parseInt(props.getProperty("pu_creation_delay_max")));
+				powerUpManager);
 
         var gameViewModel = new GameViewModelImpl(view, model);
 
 		int frameMilliseconds = Integer.parseInt(props.getProperty("frame_milliseconds"));
 
 		try(var executor = Executors.newScheduledThreadPool(1)) {
-			executor.scheduleAtFixedRate(gameViewModel::gameOneFrame, 0, frameMilliseconds, TimeUnit.MILLISECONDS);
+			executor.scheduleAtFixedRate(gameViewModel::gameOneFrame, 10, frameMilliseconds, TimeUnit.MILLISECONDS);
 		};
     }
 }
