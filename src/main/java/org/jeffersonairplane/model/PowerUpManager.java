@@ -19,6 +19,14 @@ public interface PowerUpManager {
     void countdownWaitingPowerUps();
 
     /**
+     * Creates new {@link org.jeffersonairplane.model.PowerUp} instance in the game.
+     * @param type particular type of PowerUp to create.
+     * @param coordinate of created Power Up, should be on the playing field.
+     * @return true if power up successfully created and added to power up collection.
+     */
+    public boolean createPowerUp(PowerUpTypes type, Coordinate coordinate);
+
+    /**
      * Creates one or few {@link org.jeffersonairplane.model.PowerUp} instance in the game.
      * @param coordinateSupplier provide points for power ups created.
      */

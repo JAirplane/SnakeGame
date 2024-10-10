@@ -11,13 +11,12 @@ import java.util.logging.*;
  * Contains data and game logic.
  */
 public class GameModelImpl implements GameModel {
-	/**
-	 * Model part of MVVM pattern.
-	 */
+	
 	@Getter
 	private final FieldDimension dimension;
     private final SnakeManager snakeManager;
 	private final PowerUpManager powerUpManager;
+	@Getter @Setter
 	private long framesCounter = 0;
 	@Getter @Setter
 	private int snakeMovementRhythm;
@@ -148,11 +147,11 @@ public class GameModelImpl implements GameModel {
 
 	@Override
 	public boolean oneFrameGameAction() {
-		++framesCounter;
 		if(framesCounter == Long.MAX_VALUE) {
 			framesCounter = 0;
 		}
-		
+		else ++framesCounter;
+
 		powerUpManager.countdownWaitingPowerUps();
 		powerUpManager.createPowerUps(this::getNewFreeCoordinate);
 		powerUpManager.runNewPowerUpCountdown();

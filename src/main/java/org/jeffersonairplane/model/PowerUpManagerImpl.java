@@ -17,15 +17,15 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	@Getter @Setter
 	private int maxPowerUpCreationDelay;
 	@Getter @Setter
-	private int waitingAndExistsPowerUpsNumber;
+	private int waitingAndExistingPowerUpsNumber;
 	
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
 	/**
 	* Args powerUpNumberLimit, minPowerUpCreationDelay and maxPowerUpCreationDelay should be greater than or equal to zero.
 	* @param powerUpNumberLimit is a number of power ups exists on the playing field at the same time.
-	* @param minPowerUpCreationDelay is a min delay until power up created in milliseconds.
-	* @param maxPowerUpCreationDelay is a max delay until power up created in milliseconds.
+	* @param minPowerUpCreationDelay is a min delay until power up created in frames.
+	* @param maxPowerUpCreationDelay is a max delay until power up created in frames.
 	 */
 	public PowerUpManagerImpl(int powerUpNumberLimit, int minPowerUpCreationDelay, int maxPowerUpCreationDelay) {
 		powerUps = new ArrayList<>();
@@ -34,6 +34,7 @@ public class PowerUpManagerImpl implements PowerUpManager {
 		this.powerUpNumberLimit = Math.max(powerUpNumberLimit, 0);
 		this.minPowerUpCreationDelay = Math.max(minPowerUpCreationDelay, 0);
 		this.maxPowerUpCreationDelay = Math.max(maxPowerUpCreationDelay, 0);
+		logger.log( Level.FINE, "PowerUpManager created." );
 	}
 	
 	/**
@@ -41,9 +42,12 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	 */
 	@Override
 	public void countdownWaitingPowerUps() {
+		logger.log( Level.FINE, "processing {0} power up countdowns in loop", powerUpCreationCountdowns.entrySet().size());
 		for(var entry: powerUpCreationCountdowns.entrySet()) {
-			for(Integer framesLeft: entry.getValue()) {
-				--framesLeft;
+			var countdowns = entry.getValue();
+			for(int i = 0; i < countdowns.size(); i++) {
+				logger.log( Level.FINER, "processing[{0}]: {1}", new Object[]{ entry.getValue(), countdowns.get(i) } );
+				countdowns.set(i, countdowns.get(i) - 1);
 			}
 		}
 	}
@@ -57,15 +61,23 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	 */
 	@Override
 	public void runNewPowerUpCountdown() {
-		if(waitingAndExistsPowerUpsNumber < powerUpNumberLimit) {
+		if(waitingAndExistingPowerUpsNumber < powerUpNumberLimit) {
 			PowerUpTypes powerUpType = getRandomPowerUpType();
+			logger.log( Level.FINE, "Choosen type: {0}.", powerUpType);
 			if(!powerUpCreationCountdowns.containsKey(powerUpType)) {
 				powerUpCreationCountdowns.put(powerUpType, new ArrayList<Integer>());
+				logger.log( Level.FINE, "New collection for type {0} created.", powerUpType);
 			}
 			Random rnd = new Random();
 			int delay = rnd.nextInt(maxPowerUpCreationDelay - minPowerUpCreationDelay) + minPowerUpCreationDelay;
+			logger.log( Level.FINE, "Choosen delay: {0}.", delay);
 			powerUpCreationCountdowns.get(powerUpType).add(delay);
-			++waitingAndExistsPowerUpsNumber;
+			++waitingAndExistingPowerUpsNumber;
+			logger.log( Level.FINE, "Overall power ups: {0}.", waitingAndExistingPowerUpsNumber);
+		}
+		else
+		{
+			logger.log( Level.FINE, "New countdown wasn't run. Current power ups - {0}. Limit - {1}.", new Object[] {waitingAndExistingPowerUpsNumber, powerUpNumberLimit});
 		}
 	}
 	
@@ -76,8 +88,10 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	public PowerUpTypes getRandomPowerUpType() {
 		Random rnd = new Random();
 		int percentage = rnd.nextInt(101);
+		logger.log( Level.FINE, "Chosen percentage: {0}.", percentage);
 		for(PowerUpTypes type: PowerUpTypes.values()) {
-			if(type.getCreationChance() <= percentage) {
+			if(type.getCreationChance() >= percentage) {
+				logger.log( Level.FINE, "Chosen Power Up type: {0}.", type);
 				return type;
 			}
 		}
@@ -94,9 +108,11 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	public Optional<PowerUp> getPowerUpByPoint(Coordinate point) {
 		for(PowerUp power: powerUps) {
 			if(power.getPoint().equals(point)) {
+				logger.log( Level.FINE, "Choosen Power Up: {0}.", power);
 				return Optional.of(power);
 			}
 		}
+		logger.log( Level.FINE, "No Power Up found.");
 		return Optional.empty();
 	}
 
@@ -106,13 +122,18 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	 * @param coordinate of created Power Up, should be on the playing field.
 	 * @return true if power up successfully created and added to power up collection.
 	 */
+	@Override
 	public boolean createPowerUp(PowerUpTypes type, Coordinate coordinate) {
-		if(type == null || coordinate == null) return false;
+		if(type == null || coordinate == null) {
+			logger.log( Level.FINE, "Bad arguments.");
+			return false;
+		}
 		PowerUp powerUp = switch (type) {
 			case APPLE -> new Apple(coordinate);
 			default -> null;
 		};
 		if(powerUp == null) return false;
+		logger.log( Level.FINE, "Power Up created: {0}.", powerUp);
 		powerUps.add(powerUp);
 		return true;
 	}
@@ -123,14 +144,24 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	@Override
 	public void createPowerUps(Supplier<Coordinate> coordinateSupplier) {
 		for(var entry: powerUpCreationCountdowns.entrySet()) {
-			for(Integer framesLeft: entry.getValue()) {
+			logger.log( Level.FINE, "Processing Power Up type: {0}, elements: {1}.", new Object[] {entry.getKey(), entry.getValue().size()});
+			var countdowns = entry.getValue();
+			for (var iterator = countdowns.listIterator(); iterator.hasNext(); ) {
+				Integer framesLeft = iterator.next();
 				if(framesLeft < 1) {
 					boolean created = createPowerUp(entry.getKey(), coordinateSupplier.get());
-					entry.getValue().remove(framesLeft);
-					if(!created) --waitingAndExistsPowerUpsNumber;
+					iterator.remove();
+					if(!created) {
+						--waitingAndExistingPowerUpsNumber;
+						logger.log( Level.FINE, "New Power Up creation failed. Overall amount of power ups left: {0}.", waitingAndExistingPowerUpsNumber);
+					}
+					else {
+						logger.log( Level.FINE, "New Power Up created. Type: {0}.", entry.getKey());
+					}
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -141,9 +172,11 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	@Override
 	public boolean removePowerUp(PowerUp powerUp) {
 		if(powerUps.remove(powerUp)) {
-			--waitingAndExistsPowerUpsNumber;
+			--waitingAndExistingPowerUpsNumber;
+			logger.log(Level.FINE, "Power Up removed: {0}. Overall amount of power ups left: {1}.", new Object[] {powerUp, waitingAndExistingPowerUpsNumber});
 			return true;
 		}
+		logger.log(Level.FINE, "Power Up wasn't removed: {0}.", powerUp);
 		return false;
 	}
 }

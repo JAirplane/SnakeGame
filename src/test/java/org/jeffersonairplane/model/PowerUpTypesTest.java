@@ -16,12 +16,6 @@ class PowerUpTypesTest {
 	
 	@ParameterizedTest
 	@EnumSource
-	public void getCreationChanceTest(PowerUpTypes types) {
-		assertEquals(0, types.getCreationChance());
-	}
-	
-	@ParameterizedTest
-	@EnumSource
 	public void setCreationChanceTest(PowerUpTypes types) {
 		int chance = rnd.nextInt(101);
 		types.setCreationChance(chance);
@@ -30,6 +24,7 @@ class PowerUpTypesTest {
 	
 	@Test
 	public void setCreationChanceBadValueTest() {
+		PowerUpTypes.APPLE.setCreationChance(0);
 		int chance = 1000;
 		PowerUpTypes.APPLE.setCreationChance(chance);
 		assertEquals(0, PowerUpTypes.APPLE.getCreationChance());

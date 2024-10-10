@@ -79,7 +79,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
         super.paintComponent(graphics);
         drawGrid(graphics);
 		drawSnakeShape(graphics);
-
+		drawPowerUps(graphics);
     }
 	
 	public void drawGrid(Graphics graphics) {

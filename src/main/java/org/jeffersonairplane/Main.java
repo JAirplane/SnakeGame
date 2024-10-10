@@ -70,12 +70,14 @@ public class Main {
 				Integer.parseInt(props.getProperty("snake_move_delay")),
 				powerUpManager);
 
-        var gameViewModel = new GameViewModelImpl(view, model);
+        GameViewModel gameViewModel = new GameViewModelImpl(view, model);
 
 		int frameMilliseconds = Integer.parseInt(props.getProperty("frame_milliseconds"));
 
-		try(var executor = Executors.newScheduledThreadPool(1)) {
-			executor.scheduleAtFixedRate(gameViewModel::gameOneFrame, 10, frameMilliseconds, TimeUnit.MILLISECONDS);
-		};
+		var executor = Executors.newScheduledThreadPool(1);
+		executor.scheduleAtFixedRate(() -> {
+			boolean gameOver = gameViewModel.gameOneFrame();
+			if(gameOver) executor.shutdown();
+		}, 10, frameMilliseconds, TimeUnit.MILLISECONDS);
     }
 }
