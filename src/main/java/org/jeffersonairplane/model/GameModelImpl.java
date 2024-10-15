@@ -1,6 +1,7 @@
 package org.jeffersonairplane.model;
 
 import lombok.*;
+import org.jeffersonairplane.view.InputObserver;
 
 import java.util.Arrays;
 import java.util.*;
@@ -19,7 +20,11 @@ public class GameModelImpl implements GameModel {
 	@Getter @Setter
 	private long framesCounter = 0;
 	@Getter @Setter
+	private long score = 0;
+	@Getter @Setter
 	private int snakeMovementRhythm;
+
+	private final List<PowerUpTakenObserver> powerUpTakenObservers = new ArrayList<>();
 	
     private final Logger logger = Logger.getLogger(getClass().getName());
 	
@@ -160,9 +165,45 @@ public class GameModelImpl implements GameModel {
 			snakeMove();
 			Coordinate headPoint = snakeManager.getSnake().getSnakeBlocks().getLast();
 			var powerUp = powerUpManager.getPowerUpByPoint(headPoint);
-            powerUp.ifPresent(this::powerUpEffect);
+			if(powerUp.isPresent()) {
+				++score;
+				notifyPowerUpTakenObservers(powerUp.get());
+				powerUpEffect(powerUp.get());
+			}
 			return checkCollisions();
 		}
 		return false;
+	}
+
+	/**
+	 * Registers {@link PowerUpTakenObserver}.
+	 *
+	 * @param obs is an observer to register.
+	 */
+	@Override
+	public void registerPowerUpTakenObserver(PowerUpTakenObserver obs) {
+		powerUpTakenObservers.add(obs);
+	}
+
+	/**
+	 * Removes {@link PowerUpTakenObserver}.
+	 *
+	 * @param obs is an observer to remove.
+	 */
+	@Override
+	public void removePowerUpTakenObserver(PowerUpTakenObserver obs) {
+		powerUpTakenObservers.remove(obs);
+	}
+
+	/**
+	 * Notifies {@link PowerUpTakenObserver} if power up eaten by snake.
+	 *
+	 * @param powerUp is a power up eaten.
+	 */
+	@Override
+	public void notifyPowerUpTakenObservers(PowerUp powerUp) {
+		for(var obs: powerUpTakenObservers) {
+			obs.powerUpTakenUpdate(powerUp);
+		}
 	}
 }

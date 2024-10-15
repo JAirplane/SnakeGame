@@ -10,10 +10,16 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.*;
 public class GameFrame extends JFrame {
 
 	private final GameWindow gameWindow;
+	private final InfoWindow scoreWindow;
 
-    public GameFrame(String title, GameWindow gameWindow) {
+    public GameFrame(String title, GameWindow gameWindow, InfoWindow scoreWindow) {
         this.gameWindow = gameWindow;
-        add(gameWindow);
+		this.scoreWindow = scoreWindow;
+		JPanel container = new JPanel();
+		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+		container.add(this.scoreWindow);
+		container.add(this.gameWindow);
+        add(container);
         addKeyListener(gameWindow);
         setTitle(title);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -22,8 +28,4 @@ public class GameFrame extends JFrame {
         setVisible(true);
         setLocationRelativeTo(null);
     }
-
-    public void repaintGameWindow() {
-		gameWindow.repaint();
-	}
 }

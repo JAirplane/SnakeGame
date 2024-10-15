@@ -6,7 +6,7 @@ import java.util.*;
  * Model part of MVVM pattern.
  * Contains data and game logic.
  */
-public interface GameModel {
+public interface GameModel extends PowerUpTakenObservable {
 	/**
 	 * Check collisions of snake with itself and with field borders.
 	 * @return true if collision actually happened.
@@ -50,6 +50,12 @@ public interface GameModel {
 	 * @return true if power up was applied.
 	 */
     boolean powerUpEffect(PowerUp powerUp);
+
+	/**
+	 * Returns current players game score.
+	 * @return score.
+	 */
+	long getScore();
 
 	boolean oneFrameGameAction();
 }

@@ -3,8 +3,10 @@ package org.jeffersonairplane.viewmodel;
 import org.jeffersonairplane.view.*;
 import org.jeffersonairplane.model.*;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.*;
+import java.util.List;
 
 /**
  * ViewModel of MVVM pattern.
@@ -28,6 +30,7 @@ public class GameViewModelImpl implements GameViewModel {
 		this.model = model;
 
 		view.registerInputObserver(this);
+		model.registerPowerUpTakenObserver(this);
 	}
 	
 	/**
@@ -89,6 +92,7 @@ public class GameViewModelImpl implements GameViewModel {
 		setSnakeDataForPainting();
 		setPowerUpsDataForPainting();
 		view.repaintGameWindow();
+		view.repaintInfoWindow();
 	}
 	/**
 	 * Represents one frame game iteration: logic + painting.
@@ -111,4 +115,40 @@ public class GameViewModelImpl implements GameViewModel {
 			throw new RuntimeException();
 		}
     }
+
+	/**
+	 * Observes if snake eaten power up via  {@link PowerUpTakenObservable}.
+	 *
+	 * @param powerUp is a power up eaten.
+	 */
+	@Override
+	public void powerUpTakenUpdate(PowerUp powerUp) {
+		view.addMessageToShow(getPowerUpMessage(powerUp));
+		view.setScore(model.getScore());
+		view.setSnakeAnimation(getPowerUpAnimation(powerUp));
+	}
+
+	/**
+	 * Every power up has its own message to show.
+	 * @param powerUp is a particular type of power up getting message for.
+	 * @return message.
+	 */
+	public String getPowerUpMessage(PowerUp powerUp) {
+		if(powerUp instanceof Apple) {
+			return view.getPowerUpMessages().getMessage(0);
+		}
+		return "";
+	}
+
+	/**
+	 * Every power up has its own snake animation to show.
+	 * @param powerUp is a particular type of power up getting animation for.
+	 * @return collection of colors for snake.
+	 */
+	public List<Color> getPowerUpAnimation(PowerUp powerUp) {
+		if(powerUp instanceof Apple) {
+			return Animations.getAppleTakenSnakeAnimation();
+		}
+		return new ArrayList<>();
+	}
 }

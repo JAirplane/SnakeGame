@@ -5,28 +5,12 @@ import org.jeffersonairplane.model.*;
 import org.jeffersonairplane.viewmodel.*;
 
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class Main {
-	
-	public static Properties getProperties() {
-		try {
-			var classLoader = Thread.currentThread().getContextClassLoader().getResource("");
-			if(classLoader == null) throw new NullPointerException("Class loader is null");
-            String rootPath = classLoader.getPath();
-			String appConfigPath = rootPath + "application.properties";
-			Properties props = new Properties();
-			props.load(new FileInputStream(appConfigPath));
-			return props;
-		}
-		catch (Exception e) {
-			System.out.println(e.getMessage());
-			throw new RuntimeException();
-		}
-    }
 	
 	public static void setPowerUpTypesWeights(Properties props) {
 		PowerUpTypes.APPLE.setCreationChance(Integer.parseInt(props.getProperty("pu_apple")));
@@ -34,25 +18,40 @@ public class Main {
 	
     public static void main(String[] args) {
 
-		Properties props = getProperties();
+		Properties props = null;
+		try {
+			props = PropertiesLoader.getProperties();
+		}
+		catch (IOException e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException(e);
+		}
+
 		setPowerUpTypesWeights(props);
 		
 		var windowDimension = new RectangleDimension(
-				Integer.parseInt(props.getProperty("window_width")),
-				Integer.parseInt(props.getProperty("window_height")));
+				Integer.parseInt(props.getProperty("game_window_width")),
+				Integer.parseInt(props.getProperty("game_window_height")));
+		var infoWindowDimension = new RectangleDimension(
+				Integer.parseInt(props.getProperty("game_window_width")),
+				Integer.parseInt(props.getProperty("info_window_height")));
 		int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
 		int yAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_y"));
 
 		GameViewImpl view = null;
 		try {
-			Field field = Class.forName("java.awt.Color").getField(props.getProperty("background_color"));
-			var gameWindow = new GameWindow(windowDimension, xAxisBlocks, yAxisBlocks, (Color)field.get(null));
-			view = new GameViewImpl(props.getProperty("game_frame_title"), gameWindow);
+			Field backgroundColor = Class.forName("java.awt.Color").getField(props.getProperty("background_color"));
+			Field snakeColor = Class.forName("java.awt.Color").getField(props.getProperty("snake_color"));
+			Field infoTextColor = Class.forName("java.awt.Color").getField(props.getProperty("info_text_color"));
+			var gameWindow = new GameWindow(windowDimension, xAxisBlocks, yAxisBlocks, (Color)backgroundColor.get(null),
+					(Color)snakeColor.get(null));
+			var infoWindow = new InfoWindow(infoWindowDimension, (Color)backgroundColor.get(null), (Color)infoTextColor.get(null));
+			view = new GameViewImpl(props.getProperty("game_frame_title"), gameWindow, infoWindow,
+					Integer.parseInt(props.getProperty("message_show_duration_frames")));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			throw new RuntimeException(e);
 		}
-
         SnakeManager snakeManager = new SnakeManagerImpl();
         snakeManager.fillSnake(
 				Integer.parseInt(props.getProperty("initial_snake_size")),

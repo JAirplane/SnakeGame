@@ -4,37 +4,43 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
+
+import lombok.*;
 
 public class GameWindow extends JPanel implements KeyListener, UserInputObservable {
 
     private final RectangleDimension windowDimension;
+	@Getter
 	private RectangleDimension blockDimension;
+	@Getter
 	private int indentX;
+	@Getter
 	private int indentY;
+	@Getter @Setter
     private Color background;
+	@Getter @Setter
+	private Color snakeDefaultColor;
+	@Getter
+	private final Queue<Color> snakeAnimationColorQueue;
+	@Setter
 	private List<RectangleUpperLeftPoint> snakeShape;
+	@Setter
 	private List<RectangleUpperLeftPoint> powerUps;
 	
 	private final List<InputObserver> userInputObservers = new ArrayList<>();
 
-    public GameWindow(RectangleDimension windowDimension, int blocksAmountX, int blocksAmountY, Color background) {
+    public GameWindow(RectangleDimension windowDimension, int blocksAmountX, int blocksAmountY, Color background, Color snakeDefaultColor) {
         this.setPreferredSize(new Dimension(windowDimension.width(), windowDimension.height()));
         this.setBackground(background);
         this.windowDimension = windowDimension;
 		this.background = background;
+		this.snakeDefaultColor = snakeDefaultColor;
+		snakeAnimationColorQueue = new LinkedList<>();
 		
 		setBlockDimension(blocksAmountX, blocksAmountY);
     }
-	
-	public int getIndentX() {
-		return indentX;
-	}
-	
-	public int getIndentY() {
-		return indentY;
-	}
 	
 	@Override
 	public void registerInputObserver(InputObserver obs) {
@@ -53,18 +59,6 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 		for(InputObserver obs: userInputObservers) {
 			obs.inputUpdate(key);
 		}
-	}
-	
-	public void setSnakeShape(List<RectangleUpperLeftPoint> snakeShape) {
-        this.snakeShape = snakeShape;
-	}
-	
-	public void setPowerUps(List<RectangleUpperLeftPoint> powerUps) {
-        this.powerUps = powerUps;
-	}
-
-	public RectangleDimension getBlockDimension() {
-		return blockDimension;
 	}
 
 	public void setBlockDimension(int blocksAmountX, int blocksAmountY) {
@@ -95,8 +89,15 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	
 	public void drawSnakeShape(Graphics graphics) {
 		if(snakeShape == null || snakeShape.isEmpty()) return;
+		Color snakeColor = null;
+		if(!snakeAnimationColorQueue.isEmpty()) {
+			snakeColor = snakeAnimationColorQueue.poll();
+		}
+		else {
+			snakeColor = snakeDefaultColor;
+		}
         for(var point: snakeShape) {
-            graphics.setColor(Color.GREEN);
+            graphics.setColor(snakeColor);
             graphics.fillRect(point.x(), point.y(), blockDimension.width(), blockDimension.height());
         }
 	}
