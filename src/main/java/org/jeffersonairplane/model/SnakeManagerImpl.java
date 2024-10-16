@@ -1,44 +1,56 @@
 package org.jeffersonairplane.model;
 
+import lombok.*;
+import org.jeffersonairplane.PropertiesLoader;
+
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.*;
 
 /**
  * Controls and manages snake instance.
  */
+@Getter
 public class SnakeManagerImpl implements SnakeManager {
 	
-    private final Snake snake;
-	
+	private final Snake snake;
+	@Setter
+	private int snakeMovementRhythm;
+
+	private final Logger logger = Logger.getLogger(getClass().getName());
 	/**
 	 * No args constructor.
 	 * Creates empty {@link org.jeffersonairplane.model.Snake} with 0 blocks.
+	 * Receives snake movement rhythm from properties.
 	 */
     public SnakeManagerImpl() {
+		try {
+			snake = new Snake();
 
-		snake = new Snake();
+			Properties props = PropertiesLoader.getProperties();
+			snakeMovementRhythm = Integer.parseInt(props.getProperty("snake_move_delay"));
+		}
+		catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+			throw new RuntimeException(e);
+		}
     }
 	
 	/**
 	 * Constructor
 	 * @param snake is an option to create snake externally.
+	 * @param movementRhythm snake movement frame rate.
 	 */
-    public SnakeManagerImpl(Snake snake) {
+    public SnakeManagerImpl(Snake snake, int movementRhythm) {
 		
 		Snake snakeToSet = snake;
 		if(snakeToSet == null) {
 			snakeToSet = new Snake();
 		}
 		this.snake = snakeToSet;
+
+		snakeMovementRhythm = movementRhythm;
     }
-	
-	/**
-	 * Getter for {@link org.jeffersonairplane.model.Snake} instance
-	 * @return current {@link org.jeffersonairplane.model.Snake} instance.
-	 */
-	@Override
-	public Snake getSnake() {
-		return snake;
-	}
 	
 	private Coordinate getNextCoordinateToFillSnake(Coordinate current, Direction direction) {
 		if(current == null) throw new NullPointerException("Coordinate is null");

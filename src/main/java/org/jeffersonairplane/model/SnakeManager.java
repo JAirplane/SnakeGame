@@ -13,6 +13,18 @@ public interface SnakeManager {
      */
     Snake getSnake();
 	
+	/**
+     * <p>Getter for integer value of how many frames snake waits until make a step.</p>
+	 * @return snake movement frame rate.
+     */
+    int getSnakeMovementRhythm();
+	
+	/**
+     * <p>Setter for integer value of how many frames snake waits until make a step.</p>
+	 * @param rhythm snake movement frame rate.
+     */
+    void setSnakeMovementRhythm(int rhythm);
+	
     /**
      * <p>Fills snake blocks, commonly on initialization.</p>
      * @param snakeSize amount of snake blocks to fill.

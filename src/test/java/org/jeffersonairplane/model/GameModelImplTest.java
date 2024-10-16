@@ -45,6 +45,26 @@ class GameModelImplTest {
 				powerUpManager);
 	}
 	
+	@Test
+	void getSnakeTest() {
+		Snake snake = new Snake();
+		for(int i = 0; i < 5; i++) {
+			snake.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+		}
+		doReturn(snake).when(snakeManager).getSnake();
+		
+		assertEquals(model.getSnake(), snake);
+	}
+	
+	@Test
+	void getPowerUpsTest() {
+		List<PowerUp> powerUpCollection = new ArrayList<>();
+		powerUpCollection.add(new Apple(new Coordinate(0, 0)));
+		doReturn(powerUpCollection).when(powerUpManager).getPowerUps();
+		
+		assertTrue(powerUpCollection.equals(model.getPowerUps()));
+	}
+	
 	static Stream<Arguments> checkCollisionsTestSource() {
 		return Stream.of(
 			arguments(true, true, true),
@@ -72,24 +92,7 @@ class GameModelImplTest {
 		assertThrows(NullPointerException.class, () -> model.checkCollisions(), "model.checkCollisions() do not throw exception");
 	}
 	
-	@Test
-	void getSnakeTest() {
-		Snake snake = new Snake();
-		for(int i = 0; i < 5; i++) {
-			snake.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
-		}
-		doReturn(snake).when(snakeManager).getSnake();
-		
-		assertEquals(model.getSnake(), snake);
-	}
 	
-	@Test
-	void getFieldDimensionTest() {
-		FieldDimension dimension = new FieldDimension(10, 10);
-		
-		assertTrue(dimension.blocksAmountXAxis() == model.getFieldDimension().blocksAmountXAxis() &&
-				dimension.blocksAmountYAxis() == model.getFieldDimension().blocksAmountYAxis());
-	}
 	
 	@ParameterizedTest
 	@EnumSource
@@ -116,15 +119,6 @@ class GameModelImplTest {
 		model.snakeMove();
 		
 		assertEquals(snake, estimate);
-	}
-	
-	@Test
-	void getPowerUpTest() {
-		Coordinate coordinate = new Coordinate(0, 0);
-		
-		powerUpManager.createPowerUp(PowerUpTypes.APPLE, coordinate);
-
-        assertEquals(1, model.getPowerUps().size());
 	}
 	
 	@Test

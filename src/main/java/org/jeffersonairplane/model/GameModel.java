@@ -7,23 +7,35 @@ import java.util.*;
  * Contains data and game logic.
  */
 public interface GameModel extends PowerUpTakenObservable {
+	
 	/**
-	 * Check collisions of snake with itself and with field borders.
-	 * @return true if collision actually happened.
+	 * Sets chance of creation for every power up type in the game.
 	 */
-    boolean checkCollisions();
+	void setPowerUpTypesCreationChances();
 	
 	/**
 	 * Getter for snake instance from {@link org.jeffersonairplane.model.SnakeManager}
 	 * @return Snake instance.
 	 */
 	Snake getSnake();
-
+	
+	/**
+	 * Getter for snake movement frame rate.
+	 * @return snake movement frame rate.
+	 */
+	int getSnakeMovementRhythm();
+	
+	/**
+	 * Setter for snake movement frame rate.
+	 * @param rhythm snake movement frame rate.
+	 */
+	void setSnakeMovementRhythm(int rhythm);
+	
 	/**
 	 * Getter for {@link org.jeffersonairplane.model.FieldDimension} instance
 	 * @return playingField instance
 	 */
-	public FieldDimension getFieldDimension();
+	FieldDimension getDimension();
 	
 	/**
 	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
@@ -32,17 +44,23 @@ public interface GameModel extends PowerUpTakenObservable {
 	List<PowerUp> getPowerUps();
 	
 	/**
-	 * {@link org.jeffersonairplane.model.Snake} moves one step in its current direction.
+	 * Check collisions of snake with itself and with field borders.
+	 * @return true if collision actually happened.
 	 */
-	void snakeMove();
+    boolean checkCollisions();
 	
 	/**
-     * <p>Changes current snake direction.</p>
+     * Changes current snake direction.
      * Commonly do nothing if parameter is the same as current snake direction or opposite to it.
      * @param newDirection sets the direction of snake movement.
 	 * @return true if direction was changed.
      */
 	boolean changeSnakeDirection(Direction newDirection);
+	
+	/**
+	 * {@link org.jeffersonairplane.model.Snake} moves one step in its current direction.
+	 */
+	void snakeMove();
 	
 	/**
 	 * Apply power up effect.
@@ -57,5 +75,39 @@ public interface GameModel extends PowerUpTakenObservable {
 	 */
 	long getScore();
 
+	/**
+	 * Sets players score value.
+	 * @param score to set.
+	 */
+	void setScore(long score);
+
+	/**
+	 * Returns current number of gameplay frames passed.
+	 * @return frames counter.
+	 */
+	long getFramesCounter();
+
+	/**
+	 * Sets frames counter.
+	 * @param framesValue to set.
+	 */
+	void setFramesCounter(long framesValue);
+
+	/**
+	 * Returns snake manager.
+	 * @return snake manager.
+	 */
+	SnakeManager getSnakeManager();
+
+	/**
+	 * Returns power up manager.
+	 * @return power up manager.
+	 */
+	PowerUpManager getPowerUpManager();
+
+	/**
+	 * Runs one game frame.
+	 * @return true if snake collided with border or itself.
+	 */
 	boolean oneFrameGameAction();
 }

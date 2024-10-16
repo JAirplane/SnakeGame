@@ -1,7 +1,5 @@
 package org.jeffersonairplane.model;
 
-import java.awt.event.KeyEvent;
-
 /**
  * Observes if snake eaten power up via  {@link org.jeffersonairplane.model.PowerUpTakenObservable}.
  */

@@ -1,7 +1,7 @@
 package org.jeffersonairplane.model;
 
 import lombok.*;
-import org.jeffersonairplane.view.InputObserver;
+import org.jeffersonairplane.*;
 
 import java.util.Arrays;
 import java.util.*;
@@ -15,14 +15,14 @@ public class GameModelImpl implements GameModel {
 	
 	@Getter
 	private final FieldDimension dimension;
+	@Getter
     private final SnakeManager snakeManager;
+	@Getter
 	private final PowerUpManager powerUpManager;
 	@Getter @Setter
 	private long framesCounter = 0;
 	@Getter @Setter
 	private long score = 0;
-	@Getter @Setter
-	private int snakeMovementRhythm;
 
 	private final List<PowerUpTakenObserver> powerUpTakenObservers = new ArrayList<>();
 	
@@ -32,16 +32,91 @@ public class GameModelImpl implements GameModel {
 	 * Constructor converts pixels to blocks.
 	 * @param dimension contains field width and height in blocks (not pixels).
 	 * @param snakeManager control snake {@link org.jeffersonairplane.model.SnakeManager}.
-	 * @param snakeMovementRhythm is a periodicity of snake movement in frames.
 	 * @param powerUpManager manages power ups creation, lifecycle and death.
 	 */
-    public GameModelImpl(FieldDimension dimension, SnakeManager snakeManager, int snakeMovementRhythm,
-						 PowerUpManager powerUpManager) {
+    public GameModelImpl(FieldDimension dimension, SnakeManager snakeManager, PowerUpManager powerUpManager) {
         this.dimension = dimension;
         this.snakeManager = snakeManager;
-		this.snakeMovementRhythm = snakeMovementRhythm;
 		this.powerUpManager = powerUpManager;
     }
+	
+	/**
+	 * No args constructor receives all necessary data from {@link Properties}.
+	 */
+	public GameModelImpl() {
+		try {
+			Properties props = PropertiesLoader.getProperties();
+			int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
+			int yAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_y"));
+			dimension = new FieldDimension(xAxisBlocks, yAxisBlocks);
+			
+			snakeManager = new SnakeManagerImpl();
+			snakeManager.fillSnake(
+				Integer.parseInt(props.getProperty("initial_snake_size")),
+				new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
+                Direction.RIGHT,
+				xAxisBlocks,
+				yAxisBlocks);
+			powerUpManager = new PowerUpManagerImpl(
+				Integer.parseInt(props.getProperty("pu_number_limit")),
+				Integer.parseInt(props.getProperty("pu_creation_delay_min")),
+				Integer.parseInt(props.getProperty("pu_creation_delay_max")));
+		}
+		catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Sets chance of creation for every power up type in the game.
+	 */
+	@Override
+	public void setPowerUpTypesCreationChances() {
+		try {
+			Properties props = PropertiesLoader.getProperties();
+			PowerUpTypes.APPLE.setCreationChance(Integer.parseInt(props.getProperty("pu_apple")));
+		}
+		catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+		}
+	}
+	
+	/**
+	 * Getter for snake movement frame rate.
+	 * @return snake movement frame rate.
+	 */
+	@Override
+	public int getSnakeMovementRhythm() {
+		return snakeManager.getSnakeMovementRhythm();
+	}
+	
+	/**
+	 * Setter for snake movement frame rate.
+	 * @param rhythm snake movement frame rate.
+	 */
+	@Override
+	public void setSnakeMovementRhythm(int rhythm) {
+        snakeManager.setSnakeMovementRhythm(rhythm);
+    }
+	
+	/**
+	 * Getter for {@link org.jeffersonairplane.model.Snake} instance
+	 * @return Snake instance
+	 */
+	@Override
+	public Snake getSnake() {
+		return snakeManager.getSnake();
+	}
+
+	/**
+	 * Getter for {@link PowerUp} instance.
+	 * @return List<PowerUp> collection of all existed power ups on the playing field.
+	 */
+	@Override
+	public List<PowerUp> getPowerUps() {
+		return powerUpManager.getPowerUps();
+	}
 	
 	/**
 	 * Check if snake collided with a play field borders or itself.
@@ -59,36 +134,9 @@ public class GameModelImpl implements GameModel {
             throw new NullPointerException("Snake head is null");
         }
     }
-	
-	/**
-	 * Getter for {@link org.jeffersonairplane.model.Snake} instance
-	 * @return Snake instance
-	 */
-	@Override
-	public Snake getSnake() {
-		return snakeManager.getSnake();
-	}
 
 	/**
-	 * Getter for {@link FieldDimension} instance
-	 * @return playingField dimension instance
-	 */
-	@Override
-	public FieldDimension getFieldDimension() {
-		return dimension;
-	}
-
-	/**
-	 * Getter for {@link PowerUp} instance.
-	 * @return List<PowerUp> collection of all existed power ups on the playing field.
-	 */
-	@Override
-	public List<PowerUp> getPowerUps() {
-		return powerUpManager.getPowerUps();
-	}
-
-	/**
-     * <p>Changes current snake direction.</p>
+     * Changes current snake direction.
      * Commonly do nothing if parameter is the same as current snake direction or opposite to it.
      * @param newDirection sets the direction of snake movement.
 	 * @return true if direction was changed.
@@ -150,6 +198,10 @@ public class GameModelImpl implements GameModel {
 		return point;
 	}
 
+	/**
+	 * Runs one game frame.
+	 * @return true if snake collided with border or itself.
+	 */
 	@Override
 	public boolean oneFrameGameAction() {
 		if(framesCounter == Long.MAX_VALUE) {
@@ -161,7 +213,7 @@ public class GameModelImpl implements GameModel {
 		powerUpManager.createPowerUps(this::getNewFreeCoordinate);
 		powerUpManager.runNewPowerUpCountdown();
 		
-		if(framesCounter % snakeMovementRhythm == 0) {
+		if(framesCounter % snakeManager.getSnakeMovementRhythm() == 0) {
 			snakeMove();
 			Coordinate headPoint = snakeManager.getSnake().getSnakeBlocks().getLast();
 			var powerUp = powerUpManager.getPowerUpByPoint(headPoint);

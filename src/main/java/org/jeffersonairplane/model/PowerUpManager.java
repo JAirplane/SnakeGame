@@ -13,6 +13,24 @@ public interface PowerUpManager {
     List<PowerUp> getPowerUps();
 
     /**
+     * Getter for power ups waiting for creation.
+     * @return map of power ups waiting for creation.
+     */
+    Map<PowerUpTypes, List<Integer>> getPowerUpCreationCountdowns();
+
+    /**
+     * Getter for power ups waiting for creation number.
+     * @return number of power ups waiting for creation.
+     */
+    int getWaitingAndExistingPowerUpsNumber();
+
+    /**
+     * Setter for power ups waiting for creation number.
+     * @param number of power ups waiting for creation.
+     */
+    void setWaitingAndExistingPowerUpsNumber(int number);
+
+    /**
      * One frame passed for all power ups waiting for creation.
      * Leave implementation empty if you do not use creation delays.
      */

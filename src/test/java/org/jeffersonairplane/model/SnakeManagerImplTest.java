@@ -15,7 +15,7 @@ class SnakeManagerImplTest {
 	
 	@BeforeEach
 	void initialization() {
-		snakeManager = new SnakeManagerImpl(new Snake());
+		snakeManager = new SnakeManagerImpl(new Snake(), 7);
 	}
 	
 	@Test
@@ -32,7 +32,7 @@ class SnakeManagerImplTest {
 			estimate.getSnakeBlocks().offerFirst(new Coordinate(i, 1));
 			snakeArg.getSnakeBlocks().offerFirst(new Coordinate(i, 1));
 		}
-		snakeManager = new SnakeManagerImpl(snakeArg);
+		snakeManager = new SnakeManagerImpl(snakeArg, 7);
 		assertEquals(snakeManager.getSnake(), estimate);
 	}
 	

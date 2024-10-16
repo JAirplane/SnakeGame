@@ -18,4 +18,14 @@ public interface GameViewModel extends InputObserver, PowerUpTakenObserver {
      * Represents one frame game iteration: logic + painting.
      */
 	boolean gameOneFrame();
+
+	/**
+	 * Runs gameplay process.
+	 */
+	void runGameplay();
+
+	/**
+	 * Reruns gameplay process after game over.
+	 */
+	void rerunAfterGameOver();
 }
