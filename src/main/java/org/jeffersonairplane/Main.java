@@ -11,6 +11,7 @@ public class Main {
 		GameView view = new GameViewImpl();
 		var model = new GameModelImpl();
 		model.setPowerUpTypesCreationChances();
+		view.setPowerUpColors();
         GameViewModel gameViewModel = new GameViewModelImpl(view, model);
 
 		gameViewModel.runGameplay();

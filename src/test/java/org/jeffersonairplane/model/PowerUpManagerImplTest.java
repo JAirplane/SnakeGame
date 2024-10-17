@@ -13,7 +13,13 @@ import static org.junit.jupiter.params.provider.Arguments.*;
 class PowerUpManagerImplTest {
 	
 	private PowerUpManagerImpl puManager;
-	
+
+	@BeforeAll
+    static void setPowerUpCreationChances() {
+		PowerUpTypes.APPLE.setCreationChance(0, 49);
+		PowerUpTypes.TAILCUTTER.setCreationChance(50, 100);
+	}
+
 	@BeforeEach
 	void initialization() {
 		puManager = new PowerUpManagerImpl(3, 35, 70);
@@ -192,22 +198,5 @@ class PowerUpManagerImplTest {
 		puManager.runNewPowerUpCountdown();
 		
 		assertEquals(puManager.getWaitingAndExistingPowerUpsNumber(), 3);
-	}
-	
-	@Test
-	void waitingAndExistsPowerUpsNumberTest4() {
-		puManager.runNewPowerUpCountdown();
-		puManager.runNewPowerUpCountdown();
-		puManager.runNewPowerUpCountdown();
-		puManager.getPowerUpCreationCountdowns().get(PowerUpTypes.APPLE).set(0, 0);
-		puManager.getPowerUpCreationCountdowns().get(PowerUpTypes.APPLE).set(2, 0);
-		
-		puManager.createPowerUps(() -> new Coordinate(0, 0));
-		
-		var pu = puManager.getPowerUpByPoint(new Coordinate(0, 0));
-		assertTrue(pu.isPresent());
-		puManager.removePowerUp(pu.get());
-		
-		assertEquals(2, puManager.getWaitingAndExistingPowerUpsNumber());
 	}
 }

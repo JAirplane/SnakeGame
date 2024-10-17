@@ -63,21 +63,22 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	public void runNewPowerUpCountdown() {
 		if(waitingAndExistingPowerUpsNumber < powerUpNumberLimit) {
 			PowerUpTypes powerUpType = getRandomPowerUpType();
-			logger.log( Level.FINE, "Choosen type: {0}.", powerUpType);
+			logger.log( Level.FINE, "Chosen type: {0}.", powerUpType);
 			if(!powerUpCreationCountdowns.containsKey(powerUpType)) {
-				powerUpCreationCountdowns.put(powerUpType, new ArrayList<Integer>());
+				powerUpCreationCountdowns.put(powerUpType, new ArrayList<>());
 				logger.log( Level.FINE, "New collection for type {0} created.", powerUpType);
 			}
 			Random rnd = new Random();
 			int delay = rnd.nextInt(maxPowerUpCreationDelay - minPowerUpCreationDelay) + minPowerUpCreationDelay;
-			logger.log( Level.FINE, "Choosen delay: {0}.", delay);
+			logger.log( Level.FINE, "Chosen delay: {0}.", delay);
 			powerUpCreationCountdowns.get(powerUpType).add(delay);
 			++waitingAndExistingPowerUpsNumber;
 			logger.log( Level.FINE, "Overall power ups: {0}.", waitingAndExistingPowerUpsNumber);
 		}
 		else
 		{
-			logger.log( Level.FINE, "New countdown wasn't run. Current power ups - {0}. Limit - {1}.", new Object[] {waitingAndExistingPowerUpsNumber, powerUpNumberLimit});
+			logger.log( Level.FINE, "New countdown wasn't run. Current power ups - {0}. Limit - {1}.",
+					new Object[] {waitingAndExistingPowerUpsNumber, powerUpNumberLimit});
 		}
 	}
 	
@@ -87,10 +88,10 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	 */
 	public PowerUpTypes getRandomPowerUpType() {
 		Random rnd = new Random();
-		int percentage = rnd.nextInt(101);
-		logger.log( Level.FINE, "Chosen percentage: {0}.", percentage);
+		int chance = rnd.nextInt(101);
+		logger.log( Level.FINE, "Chosen percentage: {0}.", chance);
 		for(PowerUpTypes type: PowerUpTypes.values()) {
-			if(type.getCreationChance() >= percentage) {
+			if(chance >= type.getMinChance() && chance <= type.getMaxChance()) {
 				logger.log( Level.FINE, "Chosen Power Up type: {0}.", type);
 				return type;
 			}
@@ -108,7 +109,7 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	public Optional<PowerUp> getPowerUpByPoint(Coordinate point) {
 		for(PowerUp power: powerUps) {
 			if(power.getPoint().equals(point)) {
-				logger.log( Level.FINE, "Choosen Power Up: {0}.", power);
+				logger.log( Level.FINE, "Chosen Power Up: {0}.", power);
 				return Optional.of(power);
 			}
 		}
@@ -130,6 +131,7 @@ public class PowerUpManagerImpl implements PowerUpManager {
 		}
 		PowerUp powerUp = switch (type) {
 			case APPLE -> new Apple(coordinate);
+			case TAILCUTTER -> new TailCutter(coordinate);
 			default -> null;
 		};
 		if(powerUp == null) return false;
@@ -161,7 +163,6 @@ public class PowerUpManagerImpl implements PowerUpManager {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -178,5 +179,16 @@ public class PowerUpManagerImpl implements PowerUpManager {
 		}
 		logger.log(Level.FINE, "Power Up wasn't removed: {0}.", powerUp);
 		return false;
+	}
+	
+	/**
+     * <p>Resets state to initial.</p>
+     */
+	@Override
+	public void resetState() {
+		logger.log(Level.FINE, "Power up manager state reset.");
+		powerUpCreationCountdowns.clear();
+		waitingAndExistingPowerUpsNumber = 0;
+		powerUps.clear();
 	}
 }

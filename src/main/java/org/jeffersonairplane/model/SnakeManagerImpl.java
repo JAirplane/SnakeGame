@@ -3,6 +3,7 @@ package org.jeffersonairplane.model;
 import lombok.*;
 import org.jeffersonairplane.PropertiesLoader;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.*;
@@ -29,6 +30,7 @@ public class SnakeManagerImpl implements SnakeManager {
 
 			Properties props = PropertiesLoader.getProperties();
 			snakeMovementRhythm = Integer.parseInt(props.getProperty("snake_move_delay"));
+			logger.log(Level.FINE, "Snake manager created successfully.");
 		}
 		catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -50,11 +52,14 @@ public class SnakeManagerImpl implements SnakeManager {
 		this.snake = snakeToSet;
 
 		snakeMovementRhythm = movementRhythm;
+		logger.log(Level.FINE, "Snake manager created successfully.");
     }
 	
 	private Coordinate getNextCoordinateToFillSnake(Coordinate current, Direction direction) {
-		if(current == null) throw new NullPointerException("Coordinate is null");
-		if(direction == null) throw new NullPointerException("Direction is null");
+		if(current == null || direction == null) {
+			logger.log(Level.SEVERE, "Snake filling failed. Current coordinate or direction is null.");
+			throw new NullPointerException("Coordinate or direction is null");
+		} 
 		int x = 0, y = 0;
 		if(direction == Direction.UP || direction == Direction.DOWN) {
 			x = current.xCoord();
@@ -74,11 +79,14 @@ public class SnakeManagerImpl implements SnakeManager {
                 x = current.xCoord() - 1;
             }
 		}
+		logger.log(Level.FINE, "Next snake coordinate: x:{0}, y:{1}.", new Object[]{x, y});
 		return new Coordinate(x, y);
 	}
 	private int getActualSnakeSizeToFill(int snakeSize, Coordinate head, Direction direction, int fieldWidthInBlocks, int fieldHeightInBlocks) {
-		if(head == null) throw new NullPointerException("Head coordinate is null");
-		if(direction == null) throw new NullPointerException("Direction is null");
+		if(head == null || direction == null) {
+			logger.log(Level.SEVERE, "Snake actual size undefined. Snake head or direction is null.");
+			throw new NullPointerException("Snake head or direction is null.");
+		} 
         return switch(direction) {
 			case LEFT -> Math.min(snakeSize, fieldWidthInBlocks - head.xCoord() + 1);
 			case RIGHT -> Math.min(snakeSize, head.xCoord());
@@ -108,7 +116,9 @@ public class SnakeManagerImpl implements SnakeManager {
 		snake.getSnakeBlocks().offerFirst(current);
 		Coordinate next = null;
 		
+		logger.log(Level.FINE, "Processing fill snake in a loop. Blocks amount: {0}", actualSnakeSize);
         for(int i = 0; i < actualSnakeSize - 1; i++) {
+			logger.log(Level.FINER, "Processing {0}", i+1);
 			next = getNextCoordinateToFillSnake(current, direction);
             snake.getSnakeBlocks().offerFirst(next);
             current = next;
@@ -123,7 +133,10 @@ public class SnakeManagerImpl implements SnakeManager {
     public void snakeStep() {
         snake.getSnakeBlocks().pollFirst();
 		Coordinate head = snake.getSnakeBlocks().peekLast();
-		if(head == null) throw new NullPointerException("Snake head is null");
+		if(head == null) {
+			logger.log(Level.SEVERE, "Snake step failed. Snake head is null.");
+			throw new NullPointerException("Snake head is null");
+		}
         int headXCoord = head.xCoord();
         int headYCoord = head.yCoord();
         Coordinate newHead = switch(snake.getDirection()) {
@@ -132,6 +145,7 @@ public class SnakeManagerImpl implements SnakeManager {
             case RIGHT -> new Coordinate(++headXCoord, headYCoord);
             case DOWN -> new Coordinate(headXCoord, --headYCoord);
         };
+		logger.log(Level.FINE, "Processing snake step. New head point: x:{0}, y:{1}", new Object[]{newHead.xCoord(), newHead.yCoord()});
 		snake.getSnakeBlocks().offerLast(newHead);
     }
 
@@ -151,6 +165,7 @@ public class SnakeManagerImpl implements SnakeManager {
                 (newDirection.equals(Direction.DOWN) && !currentDir.equals(Direction.UP)))) {
 
             snake.setDirection(newDirection);
+			logger.log(Level.FINE, "Snake direction changed to {0}", newDirection);
 			return true;
         }
         return false;
@@ -164,6 +179,7 @@ public class SnakeManagerImpl implements SnakeManager {
     public void changeSnakeState(Consumer<Snake> powerUpEffect) {
 		if(powerUpEffect == null) return;
 		powerUpEffect.accept(snake);
+		logger.log(Level.FINE, "Power up applied");
     }
 	
 	/**
@@ -174,8 +190,12 @@ public class SnakeManagerImpl implements SnakeManager {
      */
 	@Override
 	public boolean snakeCollideWithBorders(int fieldWidth, int fieldHeight) {
+		logger.log(Level.FINE, "Snake collision with borders check.");
 		Coordinate head = snake.getSnakeBlocks().peekLast();
-        if(head == null) throw new NullPointerException();
+        if(head == null) {
+			logger.log(Level.SEVERE, "Snake border collision failed. Snake head is null.");
+			throw new NullPointerException("Snake border collision failed. Snake head is null.");
+		}
         return head.xCoord() < 1 || head.xCoord() > fieldWidth
                 || head.yCoord() < 1 || head.yCoord() > fieldHeight;
 	}
@@ -186,9 +206,15 @@ public class SnakeManagerImpl implements SnakeManager {
      */
 	@Override
 	public boolean snakeSelfCollide() {
+		logger.log(Level.FINE, "Snake collision with itself check.");
 		Coordinate head = snake.getSnakeBlocks().peekLast();
-        if(head == null) throw new NullPointerException();
+        if(head == null) {
+			logger.log(Level.SEVERE, "Snake self collide check failed. Snake head is null.");
+			throw new NullPointerException("Snake self collide check failed. Snake head is null.");
+		}
+		logger.log(Level.FINE, "Processing snake self collision check in a loop. Iterations number: {0}", snake.getSnakeBlocks().size());
         for(Coordinate snakeBlock: snake.getSnakeBlocks()) {
+			logger.log(Level.FINER, "Head point: x:{0}, y:{1}. Snake block point: x:{2}, y:{3}", new Object[]{head.xCoord(), head.yCoord(), snakeBlock.xCoord(), snakeBlock.yCoord()});
             if(head.xCoord() == snakeBlock.xCoord() && head.yCoord() == snakeBlock.yCoord() && snakeBlock != head) {
                 return true;
             }
@@ -201,10 +227,34 @@ public class SnakeManagerImpl implements SnakeManager {
 	 * @param coordinate where head should be.
 	 * @return true if snake's head at coordinate indeed.
      */
+	@Override
 	public boolean snakeHeadAt(Coordinate coordinate) {
+		logger.log(Level.FINE, "Snake head at check.");
 		if(coordinate == null) return false;
 		Coordinate head = snake.getSnakeBlocks().peekLast();
-		if(head == null) throw new NullPointerException("Snake head is null");
+		if(head == null) {
+			logger.log(Level.SEVERE, "Snake head at check failed. Snake head is null.");
+			throw new NullPointerException("Snake head at check failed. Snake head is null.");
+		}
+		logger.log(Level.FINE, "Head point: x:{0}, y:{1}. Arg point: x:{2}, y:{3}", new Object[]{head.xCoord(), head.yCoord(), coordinate.xCoord(), coordinate.yCoord()});
 		return head.xCoord() == coordinate.xCoord() && head.yCoord() == coordinate.yCoord();
+	}
+	
+	/**
+     * <p>Resets state to initial.</p>
+     */
+	@Override
+	public void resetState() {
+        try {
+			Properties props = PropertiesLoader.getProperties();
+			snakeMovementRhythm = Integer.parseInt(props.getProperty("snake_move_delay"));
+			snake.getSnakeBlocks().clear();
+			snake.setDirection(Direction.RIGHT);
+			logger.log(Level.FINE, "Snake manager state reset.");
+        } catch (IOException e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException(e);
+        }
+
 	}
 }

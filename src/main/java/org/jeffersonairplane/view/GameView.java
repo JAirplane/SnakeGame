@@ -14,4 +14,6 @@ public interface GameView {
     void repaintInfoWindow();
     void repaintGameWindow();
     void setScore(long score);
+	void resetState();
+    void setPowerUpColors();
 }

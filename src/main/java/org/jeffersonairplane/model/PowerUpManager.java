@@ -68,4 +68,9 @@ public interface PowerUpManager {
      * @return true if removed.
      */
     boolean removePowerUp(PowerUp powerUp);
+	
+	/**
+     * <p>Resets state to initial.</p>
+     */
+	void resetState();
 }

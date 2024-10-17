@@ -32,10 +32,10 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	private Color snakeDefaultColor;
 	@Getter
 	private final Queue<Color> snakeAnimationColorQueue;
-	@Setter
+	@Getter @Setter
 	private List<RectangleUpperLeftPoint> snakeShape;
-	@Setter
-	private List<RectangleUpperLeftPoint> powerUps;
+	@Getter @Setter
+	private Map<PowerUpTypesView, List<RectangleUpperLeftPoint>> powerUps;
 	
 	private final List<InputObserver> userInputObservers = new ArrayList<>();
 	@Getter
@@ -99,8 +99,6 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 
 			setBlockDimension(Integer.parseInt(props.getProperty("blocks_amount_x")),
 					Integer.parseInt(props.getProperty("blocks_amount_y")));
-
-
 		}
 		catch(Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -168,7 +166,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	
 	/**
 	* Overrides JPanel method to paint game playing field.
-	* @param graphics
+	* @param graphics is a swing class.
 	*/
     @Override
     public void paintComponent(Graphics graphics) {
@@ -180,8 +178,8 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	
 	/**
 	* Draws grid on the playing field to show all blocks.
-	* Not realy necessary. Matter of taste.
-	* @param graphics
+	* Not really necessary. Matter of taste.
+	* @param graphics is a swing class.
 	*/
 	public void drawGrid(Graphics graphics) {
 		for(int i = 0; i <= windowDimension.width() / blockDimension.width(); i++) {
@@ -196,7 +194,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	
 	/**
 	* Draws snake on the playing field.
-	* @param graphics
+	* @param graphics is a swing class.
 	*/
 	public void drawSnakeShape(Graphics graphics) {
 		if(snakeShape == null || snakeShape.isEmpty()) return;
@@ -212,22 +210,48 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
             graphics.fillRect(point.x(), point.y(), blockDimension.width(), blockDimension.height());
         }
 	}
-	
+
+	/**
+	 * Draws one particular power up on the playing field.
+	 * @param graphics is a swing class.
+	 * @param type is a type of power up.
+	 * @param point is an upper left angle of plying field rectangle.
+	 */
+	public void drawPowerUp(Graphics graphics, PowerUpTypesView type, RectangleUpperLeftPoint point) {
+		if(type == null) throw new NullPointerException("Type is null!");
+		graphics.setColor(type.getColor());
+		if(type == PowerUpTypesView.APPLE) {
+			graphics.fillOval(point.x(), point.y(), blockDimension.width(), blockDimension.height());
+		}
+		else if(type == PowerUpTypesView.TAILCUTTER) {
+			graphics.fillRect(point.x(), point.y(), blockDimension.width(), blockDimension.height());
+		}
+	}
 	/**
 	* Draws all power ups that exists on the playing field.
-	* @param graphics
+	* @param graphics is a swing class.
 	*/
 	public void drawPowerUps(Graphics graphics) {
 		if(powerUps == null || powerUps.isEmpty()) return;
-        for(var point: powerUps) {
-            graphics.setColor(Color.RED);
-            graphics.fillOval(point.x(), point.y(), blockDimension.width(), blockDimension.height());
+        for(var entry: powerUps.entrySet()) {
+			for(var point: entry.getValue()) {
+				drawPowerUp(graphics, entry.getKey(), point);
+			}
         }
 	}
 	
 	/**
+	* Erase all animations, snake shape and power ups.
+	*/
+	public void resetState() {
+		snakeAnimationColorQueue.clear();
+		snakeShape.clear();
+		powerUps.clear();
+	}
+	
+	/**
 	* Swing KeyListener implementation. 
-	* @param e is an key typed.
+	* @param e is a key typed.
 	*/
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -235,7 +259,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	/**
 	* Swing KeyListener implementation.
 	* Notifies listeners about user input event.
-	* @param e is an key pressed.
+	* @param e is a key pressed.
 	*/
     @Override
     public void keyPressed(KeyEvent e) {
@@ -244,7 +268,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	
 	/**
 	* Swing KeyListener implementation. 
-	* @param e is an key released.
+	* @param e is a key released.
 	*/
     @Override
     public void keyReleased(KeyEvent e) {}

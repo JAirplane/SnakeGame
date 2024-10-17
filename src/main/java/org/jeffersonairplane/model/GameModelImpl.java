@@ -38,6 +38,7 @@ public class GameModelImpl implements GameModel {
         this.dimension = dimension;
         this.snakeManager = snakeManager;
 		this.powerUpManager = powerUpManager;
+		logger.log(Level.FINE, "Model created.");
     }
 	
 	/**
@@ -61,6 +62,7 @@ public class GameModelImpl implements GameModel {
 				Integer.parseInt(props.getProperty("pu_number_limit")),
 				Integer.parseInt(props.getProperty("pu_creation_delay_min")),
 				Integer.parseInt(props.getProperty("pu_creation_delay_max")));
+			logger.log(Level.FINE, "Model created.");
 		}
 		catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -75,7 +77,13 @@ public class GameModelImpl implements GameModel {
 	public void setPowerUpTypesCreationChances() {
 		try {
 			Properties props = PropertiesLoader.getProperties();
-			PowerUpTypes.APPLE.setCreationChance(Integer.parseInt(props.getProperty("pu_apple")));
+			PowerUpTypes.APPLE.setCreationChance(
+					Integer.parseInt(props.getProperty("apple_lower_limit")),
+					Integer.parseInt(props.getProperty("apple_higher_limit")));
+			PowerUpTypes.TAILCUTTER.setCreationChance(
+					Integer.parseInt(props.getProperty("tail_cutter_lower_limit")),
+					Integer.parseInt(props.getProperty("tail_cutter_higher_limit")));
+			logger.log(Level.FINE, "Creation chances set.");
 		}
 		catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -88,6 +96,7 @@ public class GameModelImpl implements GameModel {
 	 */
 	@Override
 	public int getSnakeMovementRhythm() {
+		logger.log(Level.FINE, "Getter. Snake Rhythm: {0}", snakeManager.getSnakeMovementRhythm());
 		return snakeManager.getSnakeMovementRhythm();
 	}
 	
@@ -97,6 +106,7 @@ public class GameModelImpl implements GameModel {
 	 */
 	@Override
 	public void setSnakeMovementRhythm(int rhythm) {
+		logger.log(Level.FINE, "Setter. Arg: {0}", rhythm);
         snakeManager.setSnakeMovementRhythm(rhythm);
     }
 	
@@ -106,6 +116,7 @@ public class GameModelImpl implements GameModel {
 	 */
 	@Override
 	public Snake getSnake() {
+		logger.log(Level.FINE, "Getter: Snake instance.");
 		return snakeManager.getSnake();
 	}
 
@@ -115,6 +126,7 @@ public class GameModelImpl implements GameModel {
 	 */
 	@Override
 	public List<PowerUp> getPowerUps() {
+		logger.log(Level.FINE, "Getter: Power Ups collection.");
 		return powerUpManager.getPowerUps();
 	}
 	
@@ -126,6 +138,7 @@ public class GameModelImpl implements GameModel {
     @Override
     public boolean checkCollisions() {
         try {
+			logger.log(Level.FINE, "Checking collisions.");
             return snakeManager.snakeCollideWithBorders(dimension.blocksAmountXAxis(), dimension.blocksAmountYAxis()) ||
 					snakeManager.snakeSelfCollide();
         }
@@ -143,6 +156,7 @@ public class GameModelImpl implements GameModel {
      */
 	@Override
 	public boolean changeSnakeDirection(Direction newDirection) {
+		logger.log(Level.FINE, "Changing snake direction.");
 		return snakeManager.changeSnakeDirection(newDirection);
 	}
 
@@ -151,6 +165,7 @@ public class GameModelImpl implements GameModel {
 	 */
 	@Override
 	public void snakeMove() {
+		logger.log(Level.FINE, "Snake is moving.");
 		snakeManager.snakeStep();
 	}
 	
@@ -164,6 +179,7 @@ public class GameModelImpl implements GameModel {
 		if(powerUp == null) return false;
 		snakeManager.changeSnakeState(powerUp::influence);
 		powerUpManager.removePowerUp(powerUp);
+		logger.log(Level.FINE, "Power up {0} applied on snake.", powerUp.getClass());
 		return true;
     }
 	
@@ -172,9 +188,11 @@ public class GameModelImpl implements GameModel {
 	 * @return true if no game element on particular point at the moment.
 	 */
 	public boolean coordinateIsFree(Coordinate point) {
+		logger.log(Level.FINE, "Coordinate is free -> power ups iteration.");
 		for(PowerUp pu: powerUpManager.getPowerUps()) {
 			if(pu.getPoint().equals(point)) return false;
 		}
+		logger.log(Level.FINE, "Coordinate is free -> Snake iteration.");
 		for(Coordinate snakeBlock: snakeManager.getSnake().getSnakeBlocks()) {
 			if(snakeBlock.equals(point)) return false;
 		}
@@ -189,12 +207,14 @@ public class GameModelImpl implements GameModel {
 		Random rnd = new Random();
 		boolean pointIsFree = false;
 		Coordinate point = null;
+		logger.log(Level.FINE, "Get new free coordinate -> iteration started.");
 		while(!pointIsFree) {
 			point = new Coordinate(
 					rnd.nextInt(dimension.blocksAmountXAxis()) + 1,
 					rnd.nextInt(dimension.blocksAmountYAxis()) + 1);
 			pointIsFree = coordinateIsFree(point);
 		}
+		logger.log(Level.FINE, "Get new free coordinate -> iteration finished. Point found: x: {0}, y: {1}", new Object[]{point.xCoord(), point.yCoord()});
 		return point;
 	}
 
@@ -204,16 +224,20 @@ public class GameModelImpl implements GameModel {
 	 */
 	@Override
 	public boolean oneFrameGameAction() {
+		logger.log(Level.FINE, "New frame started in model.");
 		if(framesCounter == Long.MAX_VALUE) {
 			framesCounter = 0;
+			logger.log(Level.FINE, "Frames counter nullified");
 		}
 		else ++framesCounter;
 
 		powerUpManager.countdownWaitingPowerUps();
 		powerUpManager.createPowerUps(this::getNewFreeCoordinate);
 		powerUpManager.runNewPowerUpCountdown();
+		logger.log(Level.FINE, "Power Ups has been run.");
 		
 		if(framesCounter % snakeManager.getSnakeMovementRhythm() == 0) {
+			logger.log(Level.FINE, "Snake moving.");
 			snakeMove();
 			Coordinate headPoint = snakeManager.getSnake().getSnakeBlocks().getLast();
 			var powerUp = powerUpManager.getPowerUpByPoint(headPoint);
@@ -221,12 +245,24 @@ public class GameModelImpl implements GameModel {
 				++score;
 				notifyPowerUpTakenObservers(powerUp.get());
 				powerUpEffect(powerUp.get());
+				logger.log(Level.FINE, "Power up applied.");
 			}
 			return checkCollisions();
 		}
 		return false;
 	}
-
+	
+	/**
+     * Resets state to initial.
+     */
+	public void resetState() {
+		framesCounter = 0;
+		score = 0;
+		snakeManager.resetState();
+		powerUpManager.resetState();
+		logger.log(Level.FINE, "Model state reset.");
+	}
+	
 	/**
 	 * Registers {@link PowerUpTakenObserver}.
 	 *
@@ -235,6 +271,7 @@ public class GameModelImpl implements GameModel {
 	@Override
 	public void registerPowerUpTakenObserver(PowerUpTakenObserver obs) {
 		powerUpTakenObservers.add(obs);
+		logger.log(Level.FINE, "PowerUpTakenObserver registered.");
 	}
 
 	/**
@@ -245,6 +282,7 @@ public class GameModelImpl implements GameModel {
 	@Override
 	public void removePowerUpTakenObserver(PowerUpTakenObserver obs) {
 		powerUpTakenObservers.remove(obs);
+		logger.log(Level.FINE, "PowerUpTakenObserver removed.");
 	}
 
 	/**
@@ -257,5 +295,6 @@ public class GameModelImpl implements GameModel {
 		for(var obs: powerUpTakenObservers) {
 			obs.powerUpTakenUpdate(powerUp);
 		}
+		logger.log(Level.FINE, "PowerUpTakenObservers notified.");
 	}
 }

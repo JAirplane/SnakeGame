@@ -69,7 +69,7 @@ public class GameViewModelImpl implements GameViewModel {
 	/**
 	 * Converts model coordinate (means particular rectangle on the grid) to its upper left corner point.
 	 * @param blockCoordinate is a particular rectangle on the grid.
-	 * @return {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} triangle upper left corner point.
+	 * @return {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} rectangle upper left corner point.
 	 */
 	public RectangleUpperLeftPoint blockToPixelCoordinateConversion(Coordinate blockCoordinate) {
 		RectangleDimension blockDimension = view.getGameWindow().getBlockDimension();
@@ -78,7 +78,18 @@ public class GameViewModelImpl implements GameViewModel {
 		return new RectangleUpperLeftPoint(indentX + (blockCoordinate.xCoord() - 1) * blockDimension.width(),
 			indentY + (blockCoordinate.yCoord() - 1) * blockDimension.height());
 	}
-
+	
+	/**
+	 * Get appropriate enum type for particular power up, so view knows what type to paint.
+	 * @param powerUp for conversion.
+	 * @return {@link org.jeffersonairplane.view.PowerUpTypesView} for painting.
+	 */
+	public PowerUpTypesView powerUpTypeConversion(PowerUp powerUp) {
+		if(powerUp instanceof Apple) return PowerUpTypesView.APPLE;
+		else if(powerUp instanceof TailCutter) return PowerUpTypesView.TAILCUTTER;
+		else throw new NullPointerException("Unknown power up.");
+	}
+	
 	/**
 	 * Converts snake blocks to points and sends List of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} to View.
 	 */
@@ -91,12 +102,19 @@ public class GameViewModelImpl implements GameViewModel {
 	}
 	
 	/**
-	 * Converts power up blocks to points and sends List of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} to View.
+	 * Creates map of types as a keys and collection of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} as values for every exsting power up.
+	 * Sends map ti View for painting.
 	 */
 	public void setPowerUpsDataForPainting() {
-		var powerUpsForPainting = new ArrayList<RectangleUpperLeftPoint>();
+		var powerUpsForPainting = new HashMap<PowerUpTypesView, List<RectangleUpperLeftPoint>>();
 		for(var powerUp : model.getPowerUps()) {
-			powerUpsForPainting.add(blockToPixelCoordinateConversion(powerUp.getPoint()));
+			PowerUpTypesView type = powerUpTypeConversion(powerUp);
+			if(type == null) throw new NullPointerException("Power up type is null after conversion.");
+			if(!powerUpsForPainting.containsKey(type)) {
+				powerUpsForPainting.put(type, new ArrayList<>());
+			}
+			var collection = powerUpsForPainting.get(type);
+			collection.add(blockToPixelCoordinateConversion(powerUp.getPoint()));
 		}
 		view.getGameWindow().setPowerUps(powerUpsForPainting);
 	}
@@ -123,6 +141,9 @@ public class GameViewModelImpl implements GameViewModel {
 					drawGame();
 				}
 				else {
+					view.getGameWindow().getPowerUps().clear();
+					view.getGameWindow().getSnakeAnimationColorQueue().clear();
+					view.repaintGameWindow();
 					view.getGameWindow().showGameOverMessage(true);
 				}
 				return gameOver;
@@ -154,12 +175,7 @@ public class GameViewModelImpl implements GameViewModel {
 	public void rerunAfterGameOver() {
 		gameOver = false;
 		view.getGameWindow().showGameOverMessage(false);
-		model.setScore(0);
-		view.setScore(0);
-		model.setFramesCounter(0);
-		model.getPowerUpManager().getPowerUps().clear();
-		model.getPowerUpManager().getPowerUpCreationCountdowns().clear();
-		model.getPowerUpManager().setWaitingAndExistingPowerUpsNumber(0);
+		model.resetState();
 		try {
 			Properties props = PropertiesLoader.getProperties();
 			int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
@@ -197,6 +213,9 @@ public class GameViewModelImpl implements GameViewModel {
 		if(powerUp instanceof Apple) {
 			return view.getInfoWindow().getMessages().getPowerUpMessage(0);
 		}
+		else if (powerUp instanceof TailCutter) {
+			return view.getInfoWindow().getMessages().getPowerUpMessage(1);
+		}
 		return "";
 	}
 
@@ -208,6 +227,9 @@ public class GameViewModelImpl implements GameViewModel {
 	public List<Color> getPowerUpAnimation(PowerUp powerUp) {
 		if(powerUp instanceof Apple) {
 			return Animations.getAppleTakenSnakeAnimation();
+		}
+		else if (powerUp instanceof TailCutter) {
+			return Animations.getTailCutterTakenSnakeAnimation();
 		}
 		return new ArrayList<>();
 	}

@@ -4,6 +4,7 @@ import lombok.*;
 import org.jeffersonairplane.PropertiesLoader;
 
 import java.awt.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.*;
 
@@ -79,5 +80,29 @@ public class GameViewImpl implements GameView {
 		else {
 			--messageCountdown;
 		}
+	}
+
+	@Override
+	public void setPowerUpColors() {
+		try {
+			Properties props = PropertiesLoader.getProperties();
+			Field appleColor = Class.forName("java.awt.Color")
+					.getField(props.getProperty("apple_color"));
+			PowerUpTypesView.APPLE.setColor((Color)appleColor.get(null));
+			Field tailCutterColor = Class.forName("java.awt.Color")
+					.getField(props.getProperty("tail_cutter_color"));
+			PowerUpTypesView.TAILCUTTER.setColor((Color)tailCutterColor.get(null));
+			logger.log(Level.FINE, "Creation chances set.");
+		}
+		catch (Exception e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+		}
+	}
+
+	@Override
+	public void resetState() {
+		score = 0;
+		messageCountdown = 0;
+		gameWindow.resetState();
 	}
 }

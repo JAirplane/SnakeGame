@@ -74,4 +74,9 @@ public interface SnakeManager {
 	 * @return true if snake's head at coordinate indeed.
      */
 	boolean snakeHeadAt(Coordinate coordinate);
+	
+	/**
+     * <p>Resets state to initial.</p>
+     */
+	void resetState();
 }

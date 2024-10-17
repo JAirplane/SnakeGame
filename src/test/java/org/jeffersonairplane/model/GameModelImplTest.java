@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.logging.*;
 import java.util.stream.*;
+import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
 class GameModelImplTest {
@@ -40,9 +41,7 @@ class GameModelImplTest {
 		}
 		model = new GameModelImpl(
 				new FieldDimension(10, 10),
-				snakeManager,
-				10,
-				powerUpManager);
+				snakeManager, powerUpManager);
 	}
 	
 	@Test

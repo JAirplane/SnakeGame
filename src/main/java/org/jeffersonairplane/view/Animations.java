@@ -10,7 +10,7 @@ import java.util.List;
 public class Animations {
 	
 	/**
-	* Snake animation when it yas eaten apple power up.
+	* Snake animation when it has eaten apple power up.
 	*/
 	public static List<Color> getAppleTakenSnakeAnimation() {
 		return List.of(Color.YELLOW ,Color.YELLOW,Color.YELLOW,Color.YELLOW,
@@ -20,4 +20,14 @@ public class Animations {
 				Color.YELLOW,Color.YELLOW,Color.YELLOW,Color.YELLOW);
 	}
 
+	/**
+	 * Snake animation when it has eaten tail cutter power up.
+	 */
+	public static List<Color> getTailCutterTakenSnakeAnimation() {
+		return List.of(Color.YELLOW ,Color.YELLOW,Color.YELLOW,Color.YELLOW,
+				Color.BLUE,Color.BLUE,Color.BLUE,Color.BLUE,
+				Color.YELLOW,Color.YELLOW,Color.YELLOW,Color.YELLOW,
+				Color.BLUE,Color.BLUE,Color.BLUE,Color.BLUE,
+				Color.YELLOW,Color.YELLOW,Color.YELLOW,Color.YELLOW);
+	}
 }

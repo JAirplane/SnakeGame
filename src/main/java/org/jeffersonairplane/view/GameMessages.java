@@ -26,6 +26,7 @@ public class GameMessages {
             Properties props = PropertiesLoader.getProperties();
             scoreMessage = props.getProperty("score_message");
             messages.add(props.getProperty("apple_message"));
+            messages.add(props.getProperty("tail_cutter_message"));
             gameOverMessage = props.getProperty("game_over_message");
         }
         catch(Exception e) {

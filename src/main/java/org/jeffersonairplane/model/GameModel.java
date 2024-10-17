@@ -110,4 +110,9 @@ public interface GameModel extends PowerUpTakenObservable {
 	 * @return true if snake collided with border or itself.
 	 */
 	boolean oneFrameGameAction();
+	
+	/**
+     * Resets state to initial.
+     */
+	void resetState();
 }
