@@ -131,8 +131,8 @@ public class SnakeManagerImpl implements SnakeManager {
      */
     @Override
     public void snakeStep() {
-        snake.getSnakeBlocks().pollFirst();
 		Coordinate head = snake.getSnakeBlocks().peekLast();
+		snake.getSnakeBlocks().pollFirst();
 		if(head == null) {
 			logger.log(Level.SEVERE, "Snake step failed. Snake head is null.");
 			throw new NullPointerException("Snake head is null");

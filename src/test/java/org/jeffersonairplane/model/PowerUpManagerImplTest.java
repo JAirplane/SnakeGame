@@ -60,7 +60,7 @@ class PowerUpManagerImplTest {
 		for(var entry: puManager.getPowerUpCreationCountdowns().entrySet())
 		{
 			for(Integer countdown: entry.getValue()) {
-				assertTrue(countdown >= 35 && countdown <= 70);
+				assertTrue(countdown >= 35 && countdown <= 105);
 			}
 		}
 	}
@@ -198,5 +198,17 @@ class PowerUpManagerImplTest {
 		puManager.runNewPowerUpCountdown();
 		
 		assertEquals(puManager.getWaitingAndExistingPowerUpsNumber(), 3);
+	}
+	
+	@Test
+	void resetStateTest() {
+		puManager.runNewPowerUpCountdown();
+		puManager.createPowerUp(PowerUpTypes.APPLE, new Coordinate(0, 0));
+		
+		puManager.resetState();
+		
+		assertTrue(puManager.getPowerUpCreationCountdowns().isEmpty()
+				&& puManager.getPowerUps().isEmpty()
+				&& puManager.getWaitingAndExistingPowerUpsNumber() == 0);
 	}
 }

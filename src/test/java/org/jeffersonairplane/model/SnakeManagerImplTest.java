@@ -33,7 +33,7 @@ class SnakeManagerImplTest {
 			snakeArg.getSnakeBlocks().offerFirst(new Coordinate(i, 1));
 		}
 		snakeManager = new SnakeManagerImpl(snakeArg, 7);
-		assertEquals(snakeManager.getSnake(), estimate);
+		assertTrue(snakeManager.getSnake().equals(estimate) && snakeManager.getSnakeMovementRhythm() == 7);
 	}
 	
 	static Stream<Arguments> fillSnakeTestSource() {
@@ -174,5 +174,20 @@ class SnakeManagerImplTest {
 		}
 		
 		assertEquals(snakeManager.snakeHeadAt(coordinate), answer);
+	}
+	
+	@Test
+	void resetStateTest() {
+		Snake test = snakeManager.getSnake();
+		for(int i = 0; i < 5; i++) {
+			test.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+		}
+		test.setDirection(Direction.UP);
+		snakeManager.setSnakeMovementRhythm(1000);
+		snakeManager.resetState();
+		
+		assertTrue(snakeManager.getSnake().getSnakeBlocks().isEmpty() && 
+				snakeManager.getSnake().getDirection() == Direction.RIGHT && 
+				snakeManager.getSnakeMovementRhythm() == 7);
 	}
 }

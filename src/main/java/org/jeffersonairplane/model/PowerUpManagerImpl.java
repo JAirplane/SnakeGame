@@ -188,7 +188,7 @@ public class PowerUpManagerImpl implements PowerUpManager {
 	public void resetState() {
 		logger.log(Level.FINE, "Power up manager state reset.");
 		powerUpCreationCountdowns.clear();
-		waitingAndExistingPowerUpsNumber = 0;
 		powerUps.clear();
+		waitingAndExistingPowerUpsNumber = 0;
 	}
 }
