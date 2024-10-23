@@ -14,7 +14,7 @@ public enum PowerUpTypesView {
 
 	private Color color;
 	
-	private PowerUpTypesView(Color color) {
+	PowerUpTypesView(Color color) {
 		this.color = color;
 	}
 

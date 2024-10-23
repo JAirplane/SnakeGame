@@ -18,6 +18,8 @@ public class GameViewImpl implements GameView {
 	private final GameWindow gameWindow;
 	@Getter
 	private final InfoWindow infoWindow;
+	@Getter
+	private final MenuWindow menuWindow;
 	@Getter @Setter
 	private long score;
 	@Getter @Setter
@@ -27,7 +29,8 @@ public class GameViewImpl implements GameView {
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
-	public GameViewImpl(String frameTitle, GameWindow gameWindow, InfoWindow infoWindow, int messageShowFramesDuration) {
+	public GameViewImpl(String frameTitle, GameWindow gameWindow, InfoWindow infoWindow,
+						MenuWindow menuWindow, int messageShowFramesDuration) {
         if(gameWindow == null || infoWindow == null) {
 			String msg = "GameFrame creation failed.";
 			logger.log(Level.SEVERE, msg);
@@ -35,17 +38,19 @@ public class GameViewImpl implements GameView {
 		}
 		this.gameWindow = gameWindow;
 		this.infoWindow = infoWindow;
+		this.menuWindow = menuWindow;
 		this.messageShowFramesDuration = messageShowFramesDuration;
-		frame = new GameFrame(frameTitle, gameWindow, infoWindow);
+		frame = new GameFrame(frameTitle, gameWindow, infoWindow, menuWindow);
 	}
 
 	public GameViewImpl() {
 		try {
 			gameWindow = new GameWindow();
 			infoWindow = new InfoWindow();
+			menuWindow = new MenuWindow();
 			Properties props = PropertiesLoader.getProperties();
 			messageShowFramesDuration = Integer.parseInt(props.getProperty("message_show_duration_frames"));
-			frame = new GameFrame(props.getProperty("game_frame_title"), gameWindow, infoWindow);
+			frame = new GameFrame(props.getProperty("game_frame_title"), gameWindow, infoWindow, menuWindow);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
