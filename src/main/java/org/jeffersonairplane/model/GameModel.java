@@ -36,7 +36,12 @@ public interface GameModel extends PowerUpTakenObservable {
 	 * @return playingField instance
 	 */
 	FieldDimension getDimension();
-	
+
+	/**
+	 * Setter for {@link org.jeffersonairplane.model.FieldDimension} instance
+	 * @param dimension is a playing field width and height in blocks.
+	 */
+	void setDimension(FieldDimension dimension);
 	/**
 	 * Getter for {@link org.jeffersonairplane.model.PowerUp} instance
 	 * @return List<PowerUp> collection of all existed power ups on the playing field.

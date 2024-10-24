@@ -1,5 +1,7 @@
 package org.jeffersonairplane.view;
 
+import lombok.Getter;
+
 @Getter
 public enum MapSize {
 	SMALL(15, 15),

@@ -2,6 +2,7 @@ package org.jeffersonairplane.view;
 
 import java.awt.*;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
 * View part of MVVM pattern.
@@ -51,4 +52,15 @@ public interface GameView {
 	* Sets color to every Power Up in the game.
 	*/
     void setPowerUpColors();
+
+	/**
+	 * Sets settings, chosen by user.
+	 * @param settings is a method which sets game settings.
+	 */
+	void setSettingsSetter(Consumer<ChosenSettingsDTO> settings);
+
+	/**
+	 * Sets method to run gameplay.
+	 */
+    void setGameRunner(Runnable gameRunner);
 }

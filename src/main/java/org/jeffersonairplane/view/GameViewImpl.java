@@ -6,6 +6,7 @@ import org.jeffersonairplane.PropertiesLoader;
 import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.*;
 
 /**
@@ -109,5 +110,15 @@ public class GameViewImpl implements GameView {
 		score = 0;
 		messageCountdown = 0;
 		gameWindow.resetState();
+	}
+
+	@Override
+	public void setSettingsSetter(Consumer<ChosenSettingsDTO> settings) {
+		menuWindow.setSettingsSetter(settings);
+	}
+
+	@Override
+	public void setGameRunner(Runnable gameRunner) {
+		menuWindow.setGameRunner(gameRunner);
 	}
 }

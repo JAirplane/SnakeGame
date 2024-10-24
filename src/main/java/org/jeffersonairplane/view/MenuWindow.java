@@ -6,27 +6,59 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import lombok.*;
 
-public class MenuWindow extends JPanel implements ActionListener, ActionPerformedObservable {
-	
-	private final List<ActionPerformedObserver> observers = new ArrayList<>();
-	
-	private int powerUpsAmountMaxLimit;
+public class MenuWindow extends JPanel {
+
+	private final int powerUpsAmountMaxLimit;
 	private int powerUpsAmountChosenLimit;
 	
 	private MapSize mapSize;
 	
-	JButton startGame;
-	JButton powerUpAmountChanger;
-	JButton fieldSize;
-	JButton exit;
-	
+	private final JButton startGameButton;
+	private final JButton powerUpAmountChangerButton;
+	private final JButton fieldSizeButton;
+	private final JButton exitButton;
+
+	ActionListener actionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			Object source = event.getSource();
+			if(source == startGameButton) {
+				settingsSetter.accept(new ChosenSettingsDTO(powerUpsAmountChosenLimit,
+						mapSize.getXAxisBlocks(), mapSize.getYAxisBlocks()));
+				switchToGameplay.run();
+				gameRunner.run();
+			}
+			else if(source == powerUpAmountChangerButton) {
+				updateCurrentPowerUpsAmount();
+			}
+			else if(source == fieldSizeButton) {
+				updateMapSize();
+			}
+			else if(source == exitButton) {
+				exitGame.accept(exitEvent);
+			}
+		}
+	};
+
 	JLabel powerUpAmountChangerLabel;
 	JLabel fieldSizeLabel;
-
+	
+	@Setter
+	private Consumer<WindowEvent> exitGame;
+	@Setter
+	private Consumer<ChosenSettingsDTO> settingsSetter;
+	@Setter
+	private Runnable gameRunner;
+	@Setter
+	private Runnable switchToGameplay;
+	@Setter
+	WindowEvent exitEvent;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public MenuWindow() {
@@ -36,10 +68,14 @@ public class MenuWindow extends JPanel implements ActionListener, ActionPerforme
 			powerUpsAmountMaxLimit = Integer.parseInt(props.getProperty("pu_number_limit_cap"));
 			mapSize = MapSize.MEDIUM;
 			
-			startGame = new JButton(props.getProperty("start_game_button_title"));
-			powerUpAmountChanger = new JButton(props.getProperty("power_ups_amount_button_title"));
-			fieldSize = new JButton(props.getProperty("start_game_button_title"));
-			exit = new JButton(props.getProperty("start_game_button_title"));
+			startGameButton = new JButton(props.getProperty("start_game_button_title"));
+			startGameButton.addActionListener(actionListener);
+			powerUpAmountChangerButton = new JButton(props.getProperty("power_ups_amount_button_title"));
+			powerUpAmountChangerButton.addActionListener(actionListener);
+			fieldSizeButton = new JButton(props.getProperty("field_size_button_title"));
+			fieldSizeButton.addActionListener(actionListener);
+			exitButton = new JButton(props.getProperty("exit_button_title"));
+			exitButton.addActionListener(actionListener);
 			
 			int width = Integer.parseInt(props.getProperty("game_window_width"));
 			int height = Integer.parseInt(props.getProperty("info_window_height"))
@@ -50,63 +86,21 @@ public class MenuWindow extends JPanel implements ActionListener, ActionPerforme
 			layout.setVgap(10);
 			setLayout(layout);
 			
-			add(startGame);
+			add(startGameButton);
 			add(new JLabel());
-			add(powerUpAmountChanger);
+			add(powerUpAmountChangerButton);
 			powerUpAmountChangerLabel = new JLabel(String.valueOf(powerUpsAmountChosenLimit));
-			add(powerUpAmountChanger);
-			add(fieldSize);
+			add(powerUpAmountChangerLabel);
+			add(fieldSizeButton);
 			fieldSizeLabel = new JLabel(String.valueOf(mapSize));
 			add(fieldSizeLabel);
-			add(exit);
+			add(exitButton);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
 		}
 	}
-	
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		Object source = event.getSource();
-		if(source == startGame) {
-			notifyActionObservers(event);
-		}
-	}
 
-	/**
-	 * Registers {@link org.jeffersonairplane.view.ActionPerformedObserver}.
-	 *
-	 * @param obs is observer.
-	 */
-	@Override
-	public void registerActionObserver(ActionPerformedObserver obs) {
-		if(!observers.contains(obs)) {
-			observers.add(obs);
-		}
-	}
-
-	/**
-	 * Removes {@link org.jeffersonairplane.view.ActionPerformedObserver}.
-	 *
-	 * @param obs is observer.
-	 */
-	@Override
-	public void removeActionObserver(ActionPerformedObserver obs) {
-		observers.remove(obs);
-	}
-
-	/**
-	 * Notifies all registered {@link org.jeffersonairplane.view.ActionPerformedObserver}.
-	 *
-	 * @param event is an event happened.
-	 */
-	@Override
-	public void notifyActionObservers(ActionEvent event) {
-		for(var obs: observers) {
-			obs.actionUpdate(event);
-		}
-	}
-	
 	public void updateCurrentPowerUpsAmount() {
 		if(powerUpsAmountChosenLimit >= powerUpsAmountMaxLimit) {
 			powerUpsAmountChosenLimit = 1;
@@ -122,5 +116,6 @@ public class MenuWindow extends JPanel implements ActionListener, ActionPerforme
 			case LARGE -> mapSize = MapSize.SMALL;
 			default -> throw new IllegalStateException("Unknown MapSize state.");
 		}
+		fieldSizeLabel.setText(String.valueOf(mapSize));
 	}
 }

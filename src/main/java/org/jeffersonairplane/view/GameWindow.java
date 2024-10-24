@@ -54,7 +54,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
     public GameWindow(RectangleDimension windowDimension, int blocksAmountX, int blocksAmountY, Color background,
 					  Color snakeDefaultColor, Color gameOverTextColor, Font gameOverLabelFont) {
 		messages = new GameMessages();
-		//this.setLayout(new GridBagLayout());
+		this.setLayout(new GridBagLayout());
         this.setPreferredSize(new Dimension(windowDimension.width(), windowDimension.height()));
         this.setBackground(background);
         this.windowDimension = windowDimension;
@@ -77,7 +77,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	public GameWindow() {
 		try {
 			messages = new GameMessages();
-			//this.setLayout(new GridBagLayout());
+			this.setLayout(new GridBagLayout());
 			Properties props = PropertiesLoader.getProperties();
 			windowDimension = new RectangleDimension(Integer.parseInt(props.getProperty("game_window_width")),
 					Integer.parseInt(props.getProperty("game_window_height")));

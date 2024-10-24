@@ -14,6 +14,6 @@ public class Main {
 		view.setPowerUpColors();
         GameViewModel gameViewModel = new GameViewModelImpl(view, model);
 
-		gameViewModel.runGameplay();
+		//gameViewModel.runGameplay();
     }
 }

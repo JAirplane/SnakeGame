@@ -33,17 +33,19 @@ public class GameFrame extends JFrame {
         this.gameWindow = gameWindow;
 		this.scoreWindow = scoreWindow;
 		this.menuWindow = menuWindow;
+		this.menuWindow.setExitGame(this::processWindowEvent);
+		this.menuWindow.setExitEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		this.menuWindow.setSwitchToGameplay(this::gameplay);
 		gameplayWindowContainer = new JPanel();
 		gameplayWindowContainer.setLayout(new BoxLayout(gameplayWindowContainer, BoxLayout.Y_AXIS));
 		gameplayWindowContainer.add(this.scoreWindow);
 		gameplayWindowContainer.add(this.gameWindow);
 		cardLayout = new CardLayout();
 		mainContainer = new JPanel(cardLayout);
-		mainContainer.add(gameplayWindowContainer, "gameplay");
 		mainContainer.add(menuWindow, "menu");
+		mainContainer.add(gameplayWindowContainer, "gameplay");
         add(mainContainer);
-		
-        addActionListener(menuWindow);
+
         setTitle(title);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
@@ -51,16 +53,20 @@ public class GameFrame extends JFrame {
         setVisible(true);
         setLocationRelativeTo(null);
     }
-	
+
+	/**
+	 * Prepare input listener and switches layout to show gameplay.
+	 */
 	public void gameplay() {
-		removeActionListener(menuWindow);
 		addKeyListener(gameWindow);
 		cardLayout.show(mainContainer, "gameplay");
 	}
-	
+
+	/**
+	 * Removes gameplay input listener and switches layout to show menu.
+	 */
 	public void menu() {
 		removeKeyListener(gameWindow);
-		addActionListener(menuWindow);
 		cardLayout.show(mainContainer, "menu");
 	}
 }

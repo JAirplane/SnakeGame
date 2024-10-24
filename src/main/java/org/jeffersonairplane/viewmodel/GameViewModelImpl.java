@@ -37,6 +37,8 @@ public class GameViewModelImpl implements GameViewModel {
 	public GameViewModelImpl(GameView view, GameModel model) {
 		try {
 			this.view = view;
+			this.view.setSettingsSetter(this::setSettings);
+			this.view.setGameRunner(this::runGameplay);
 			this.model = model;
 			frameMilliseconds = Integer.parseInt(PropertiesLoader.getProperties().getProperty("frame_milliseconds"));
 			view.getGameWindow().registerInputObserver(this);
@@ -155,6 +157,14 @@ public class GameViewModelImpl implements GameViewModel {
 			throw new RuntimeException();
 		}
     }
+
+	/**
+	 * Sets user settings from menu.
+	 */
+	public void setSettings(ChosenSettingsDTO settings) {
+		model.getPowerUpManager().setWaitingAndExistingPowerUpsNumber(settings.powerUpsLimit());
+		model.setDimension(new FieldDimension(settings.xAxisBlocksAmount(), settings.yAxisBlocksAmount()));
+	}
 
 	/**
 	 * Runs gameplay process.

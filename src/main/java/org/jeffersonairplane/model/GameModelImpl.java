@@ -13,8 +13,8 @@ import java.util.logging.*;
  */
 public class GameModelImpl implements GameModel {
 	
-	@Getter
-	private final FieldDimension dimension;
+	@Getter @Setter
+	private FieldDimension dimension;
 	@Getter
     private final SnakeManager snakeManager;
 	@Getter
