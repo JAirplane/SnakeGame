@@ -2,6 +2,7 @@ package org.jeffersonairplane.model;
 
 import lombok.*;
 import org.jeffersonairplane.*;
+import org.jeffersonairplane.viewmodel.Direction;
 
 import java.util.Arrays;
 import java.util.*;

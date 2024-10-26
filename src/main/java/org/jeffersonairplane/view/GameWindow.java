@@ -2,8 +2,6 @@ package org.jeffersonairplane.view;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
@@ -16,7 +14,7 @@ import org.jeffersonairplane.PropertiesLoader;
 /**
 * UI element - game playing field.
 */
-public class GameWindow extends JPanel implements KeyListener, UserInputObservable {
+public class GameWindow extends JPanel {
 
 	private final JLabel gameOverLabel;
     private final RectangleDimension windowDimension;
@@ -36,8 +34,7 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 	private List<RectangleUpperLeftPoint> snakeShape;
 	@Getter @Setter
 	private Map<PowerUpTypesView, List<RectangleUpperLeftPoint>> powerUps;
-	
-	private final List<InputObserver> userInputObservers = new ArrayList<>();
+
 	@Getter
 	private final GameMessages messages;
 
@@ -103,37 +100,6 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 		catch(Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	* {@link org.jeffersonairplane.view.UserInputObservable} implementation allows observers to listen user inputs.
-	* @param obs observer to add.
-	*/
-	@Override
-	public void registerInputObserver(InputObserver obs) {
-
-        userInputObservers.add(obs);
-	}
-	
-	/**
-	* {@link org.jeffersonairplane.view.UserInputObservable} implementation allows observers to listen user inputs.
-	* @param obs observer to remove.
-	*/
-	@Override
-    public void removeInputObserver(InputObserver obs) {
-
-        userInputObservers.remove(obs);
-	}
-	
-	/**
-	* {@link org.jeffersonairplane.view.UserInputObservable} implementation allows observers to listen user inputs.
-	* @param key is a users key input.
-	*/
-	@Override
-    public void notifyInputObservers(KeyEvent key) {
-		for(InputObserver obs: userInputObservers) {
-			obs.inputUpdate(key);
 		}
 	}
 
@@ -248,28 +214,5 @@ public class GameWindow extends JPanel implements KeyListener, UserInputObservab
 		snakeShape.clear();
 		powerUps.clear();
 	}
-	
-	/**
-	* Swing KeyListener implementation. 
-	* @param e is a key typed.
-	*/
-    @Override
-    public void keyTyped(KeyEvent e) {}
-	
-	/**
-	* Swing KeyListener implementation.
-	* Notifies listeners about user input event.
-	* @param e is a key pressed.
-	*/
-    @Override
-    public void keyPressed(KeyEvent e) {
-        notifyInputObservers(e);
-    }
-	
-	/**
-	* Swing KeyListener implementation. 
-	* @param e is a key released.
-	*/
-    @Override
-    public void keyReleased(KeyEvent e) {}
+
 }

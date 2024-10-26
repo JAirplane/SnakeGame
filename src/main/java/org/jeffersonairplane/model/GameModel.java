@@ -1,5 +1,7 @@
 package org.jeffersonairplane.model;
 
+import org.jeffersonairplane.viewmodel.Direction;
+
 import java.util.*;
 
 /**

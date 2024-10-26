@@ -1,4 +1,4 @@
-package org.jeffersonairplane.model;
+package org.jeffersonairplane.viewmodel;
 
 /**
  * Direction of snake movement

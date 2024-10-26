@@ -26,6 +26,7 @@ public class InfoWindow extends JPanel {
 	private final JLabel infoLabel;
 	@Getter
 	private final GameMessages messages;
+	@Getter
 	private final Queue<String> messagesQueue;
 
 	private final Logger logger = Logger.getLogger(getClass().getName());

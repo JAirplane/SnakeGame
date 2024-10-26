@@ -31,6 +31,18 @@ public interface PowerUpManager {
     void setWaitingAndExistingPowerUpsNumber(int number);
 
     /**
+     * Getter
+     * @return existed power up limit.
+     */
+    int getPowerUpNumberLimit();
+
+    /**
+     * Setter
+     * @param limit of power ups exists at the same time.
+     */
+    void setPowerUpNumberLimit(int limit);
+
+    /**
      * One frame passed for all power ups waiting for creation.
      * Leave implementation empty if you do not use creation delays.
      */

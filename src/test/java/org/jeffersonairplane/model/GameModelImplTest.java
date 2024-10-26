@@ -1,5 +1,6 @@
 package org.jeffersonairplane.model;
 
+import org.jeffersonairplane.viewmodel.Direction;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.params.*;

@@ -39,35 +39,27 @@ public class GameViewModelImpl implements GameViewModel {
 			this.view = view;
 			this.view.setSettingsSetter(this::setSettings);
 			this.view.setGameRunner(this::runGameplay);
+			this.view.getFrame().setMovement(model::changeSnakeDirection);
+			this.view.getFrame().setRerun(this::rerunAfterGameOver);
+			this.view.getFrame().setTogglePause(this::togglePause);
+			this.view.getFrame().setGameplayInputs();
 			this.model = model;
 			frameMilliseconds = Integer.parseInt(PropertiesLoader.getProperties().getProperty("frame_milliseconds"));
-			view.getGameWindow().registerInputObserver(this);
 			model.registerPowerUpTakenObserver(this);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
-	 * {@link org.jeffersonairplane.view.InputObserver} implementation.
-	 * Changes snake direction according to key pressed by user.
-	 * @param key pressed.
+	 * Switches pause in the game.
 	 */
 	@Override
-	public void inputUpdate(KeyEvent key) {
-		switch(key.getKeyCode()) {
-			case KeyEvent.VK_LEFT -> model.changeSnakeDirection(Direction.LEFT);
-			case KeyEvent.VK_UP -> model.changeSnakeDirection(Direction.DOWN);
-			case KeyEvent.VK_RIGHT -> model.changeSnakeDirection(Direction.RIGHT);
-			case KeyEvent.VK_DOWN -> model.changeSnakeDirection(Direction.UP);
-			case KeyEvent.VK_SPACE -> pause = !pause;
-            case KeyEvent.VK_R -> {
-                if(gameOver) rerunAfterGameOver();
-            }
-        };
+	public void togglePause() {
+		pause = !pause;
 	}
-	
+
 	/**
 	 * Converts model coordinate (means particular rectangle on the grid) to its upper left corner point.
 	 * @param blockCoordinate is a particular rectangle on the grid.
@@ -162,7 +154,7 @@ public class GameViewModelImpl implements GameViewModel {
 	 * Sets user settings from menu.
 	 */
 	public void setSettings(ChosenSettingsDTO settings) {
-		model.getPowerUpManager().setWaitingAndExistingPowerUpsNumber(settings.powerUpsLimit());
+		model.getPowerUpManager().setPowerUpNumberLimit(settings.powerUpsLimit());
 		model.setDimension(new FieldDimension(settings.xAxisBlocksAmount(), settings.yAxisBlocksAmount()));
 	}
 
@@ -183,23 +175,27 @@ public class GameViewModelImpl implements GameViewModel {
 	 */
 	@Override
 	public void rerunAfterGameOver() {
-		gameOver = false;
-		view.getGameWindow().showGameOverMessage(false);
-		model.resetState();
-		try {
-			Properties props = PropertiesLoader.getProperties();
-			int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
-			int yAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_y"));
-			model.getSnakeManager().fillSnake(
-					Integer.parseInt(props.getProperty("initial_snake_size")),
-					new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
-					Direction.RIGHT,
-					xAxisBlocks,
-					yAxisBlocks);
-			runGameplay();
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
-			throw new RuntimeException(e);
+		if(gameOver) {
+			gameOver = false;
+			view.getGameWindow().showGameOverMessage(false);
+			model.resetState();
+			view.setScore(0);
+			view.getInfoWindow().getMessagesQueue().clear();
+			try {
+				Properties props = PropertiesLoader.getProperties();
+				int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
+				int yAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_y"));
+				model.getSnakeManager().fillSnake(
+						Integer.parseInt(props.getProperty("initial_snake_size")),
+						new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
+						Direction.RIGHT,
+						xAxisBlocks,
+						yAxisBlocks);
+				runGameplay();
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	/**

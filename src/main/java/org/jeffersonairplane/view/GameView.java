@@ -1,5 +1,6 @@
 package org.jeffersonairplane.view;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -20,7 +21,13 @@ public interface GameView {
 	* @return info window (shows gameplay info: score, tips etc...).
 	*/
     InfoWindow getInfoWindow();
-	
+
+	/**
+	 * Getter
+	 * @return game frame.
+	 */
+	GameFrame getFrame();
+
 	/**
 	* Sequence of colors to paint snake.
 	* @param colors is a collection of colors to paint snake with.

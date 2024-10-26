@@ -7,8 +7,10 @@ import org.jeffersonairplane.view.*;
  * ViewModel of MVVM pattern.
  * Input observer registered on view side to listen to user key inputs.
  */
-public interface GameViewModel extends InputObserver, PowerUpTakenObserver {
-	
+public interface GameViewModel extends PowerUpTakenObserver {
+
+	void togglePause();
+
 	/**
      * Draws playing field, snake and power ups.
      */

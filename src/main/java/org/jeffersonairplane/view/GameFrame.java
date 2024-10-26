@@ -1,19 +1,21 @@
 package org.jeffersonairplane.view;
 
+import lombok.Setter;
+import org.jeffersonairplane.viewmodel.Direction;
+
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
+import java.util.function.Consumer;
 import javax.swing.*;
-
-import static com.sun.java.accessibility.util.AWTEventMonitor.*;
 
 /**
 * Application window class.
 * Contains all the other view game elements.
 */
 public class GameFrame extends JFrame {
-	
-	private final JPanel mainContainer;
+
+
+    private final JPanel mainContainer;
 	private final CardLayout cardLayout;
 	
 	private final JPanel gameplayWindowContainer;
@@ -21,6 +23,13 @@ public class GameFrame extends JFrame {
 	private final GameWindow gameWindow;
 	private final InfoWindow scoreWindow;
 	private final MenuWindow menuWindow;
+
+	@Setter
+	private Consumer<Direction> movement;
+	@Setter
+	private Runnable rerun;
+	@Setter
+	private Runnable togglePause;
 
 	/**
 	* Constructor.
@@ -54,11 +63,48 @@ public class GameFrame extends JFrame {
         setLocationRelativeTo(null);
     }
 
+	public void setGameplayInputs() {
+        String moveUp = "Move_Up";
+        gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), moveUp);
+        String moveDown = "Move_Down";
+        gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), moveDown);
+        String moveLeft = "Move_Left";
+        gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), moveLeft);
+        String moveRight = "Move_Right";
+        gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), moveRight);
+		String restart = "Restart";
+		gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), restart);
+		String pause = "Pause";
+		gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), pause);
+
+		gameWindow.getActionMap().put(moveUp, new MoveAction(Direction.UP));
+		gameWindow.getActionMap().put(moveDown, new MoveAction(Direction.DOWN));
+		gameWindow.getActionMap().put(moveLeft, new MoveAction(Direction.LEFT));
+		gameWindow.getActionMap().put(moveRight, new MoveAction(Direction.RIGHT));
+		gameWindow.getActionMap().put(restart, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				rerun.run();
+			}
+		});
+		gameWindow.getActionMap().put(pause, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				togglePause.run();
+			}
+		});
+	}
+
 	/**
 	 * Prepare input listener and switches layout to show gameplay.
 	 */
 	public void gameplay() {
-		addKeyListener(gameWindow);
 		cardLayout.show(mainContainer, "gameplay");
 	}
 
@@ -66,7 +112,22 @@ public class GameFrame extends JFrame {
 	 * Removes gameplay input listener and switches layout to show menu.
 	 */
 	public void menu() {
-		removeKeyListener(gameWindow);
 		cardLayout.show(mainContainer, "menu");
 	}
+
+	private class MoveAction extends AbstractAction {
+
+		Direction direction;
+
+		MoveAction(Direction direction) {
+			this.direction = direction;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			movement.accept(direction);
+		}
+	}
+
+
 }

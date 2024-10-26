@@ -13,7 +13,8 @@ import java.util.logging.*;
 * View part of MVVM pattern.
 */
 public class GameViewImpl implements GameView {
-	
+
+	@Getter
 	private final GameFrame frame;
 	@Getter
 	private final GameWindow gameWindow;

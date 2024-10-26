@@ -2,6 +2,7 @@ package org.jeffersonairplane.model;
 
 import lombok.*;
 import org.jeffersonairplane.PropertiesLoader;
+import org.jeffersonairplane.viewmodel.Direction;
 
 import java.io.IOException;
 import java.util.*;

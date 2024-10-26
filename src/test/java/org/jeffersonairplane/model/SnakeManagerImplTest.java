@@ -2,6 +2,8 @@ package org.jeffersonairplane.model;
 
 import java.util.function.*;
 import java.util.stream.*;
+
+import org.jeffersonairplane.viewmodel.Direction;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
