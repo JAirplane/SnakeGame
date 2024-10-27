@@ -4,6 +4,7 @@ import org.jeffersonairplane.PropertiesLoader;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
 import java.util.function.*;
@@ -24,7 +25,10 @@ public class MenuWindow extends JPanel {
 	private final JButton fieldSizeButton;
 	private final JButton exitButton;
 
-
+	@Getter @Setter
+	private Color background;
+	@Getter @Setter
+	private Color textColor;
 
 	JLabel powerUpAmountChangerLabel;
 	JLabel fieldSizeLabel;
@@ -82,6 +86,10 @@ public class MenuWindow extends JPanel {
 			int width = Integer.parseInt(props.getProperty("game_window_width"));
 			int height = Integer.parseInt(props.getProperty("info_window_height"))
 					+ Integer.parseInt(props.getProperty("game_window_height"));
+			Field backgroundColor = Class.forName("java.awt.Color").getField(props.getProperty("playing_field_background_color"));
+			background = (Color)backgroundColor.get(null);
+			this.setBackground(background);
+
 			setPreferredSize(new Dimension(width, height));
 			GridLayout layout = new GridLayout(4,2);
 			layout.setHgap(10);
@@ -97,6 +105,16 @@ public class MenuWindow extends JPanel {
 			fieldSizeLabel = new JLabel(String.valueOf(mapSize));
 			add(fieldSizeLabel);
 			add(exitButton);
+
+			Field infoTextColor = Class.forName("java.awt.Color").getField(props.getProperty("info_text_color"));
+			textColor = (Color)infoTextColor.get(null);
+
+			powerUpAmountChangerLabel.setForeground(textColor);
+			powerUpAmountChangerLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
+					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
+			fieldSizeLabel.setForeground(textColor);
+			fieldSizeLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
+					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
