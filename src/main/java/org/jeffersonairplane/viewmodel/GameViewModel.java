@@ -1,7 +1,6 @@
 package org.jeffersonairplane.viewmodel;
 
 import org.jeffersonairplane.model.PowerUpTakenObserver;
-import org.jeffersonairplane.view.*;
 
 /**
  * ViewModel of MVVM pattern.

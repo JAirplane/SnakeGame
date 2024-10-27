@@ -22,6 +22,8 @@ public class Snake {
      */
     @Setter
     private Direction direction;
+    @Setter
+    private Direction forbidenDirection;
 	
 	/**
 	 * No args constructor.

@@ -238,6 +238,7 @@ public class GameModelImpl implements GameModel {
 		logger.log(Level.FINE, "Power Ups has been run.");
 		
 		if(framesCounter % snakeManager.getSnakeMovementRhythm() == 0) {
+			snakeManager.setForbiddenSnakeDirection();
 			logger.log(Level.FINE, "Snake moving.");
 			snakeMove();
 			Coordinate headPoint = snakeManager.getSnake().getSnakeBlocks().getLast();

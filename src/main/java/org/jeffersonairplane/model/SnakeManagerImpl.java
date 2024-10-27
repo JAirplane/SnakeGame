@@ -160,10 +160,7 @@ public class SnakeManagerImpl implements SnakeManager {
     public boolean changeSnakeDirection(Direction newDirection) {
 		Direction currentDir = snake.getDirection();
 		if(currentDir == newDirection) return false;
-        if(newDirection != null && ((newDirection.equals(Direction.LEFT) && !currentDir.equals(Direction.RIGHT)) ||
-                (newDirection.equals(Direction.RIGHT) && !currentDir.equals(Direction.LEFT)) ||
-                (newDirection.equals(Direction.UP) && !currentDir.equals(Direction.DOWN)) ||
-                (newDirection.equals(Direction.DOWN) && !currentDir.equals(Direction.UP)))) {
+        if(newDirection != null && newDirection != snake.getForbidenDirection()) {
 
             snake.setDirection(newDirection);
 			logger.log(Level.FINE, "Snake direction changed to {0}", newDirection);
@@ -171,6 +168,20 @@ public class SnakeManagerImpl implements SnakeManager {
         }
         return false;
     }
+
+	/**
+	 * Sets forbidden direction according to current snake direction.
+	 * It prevents bad snake direction inside one game frame when user make a few inputs between snake movements.
+	 */
+	@Override
+	public void setForbiddenSnakeDirection() {
+		switch(snake.getDirection()) {
+			case LEFT -> snake.setForbidenDirection(Direction.RIGHT);
+			case UP -> snake.setForbidenDirection(Direction.DOWN);
+			case RIGHT -> snake.setForbidenDirection(Direction.LEFT);
+			case DOWN -> snake.setForbidenDirection(Direction.UP);
+		}
+	}
 
     /**
      * <p>Applies any possible effects on snake (grow, speed up, etc...)</p>

@@ -49,8 +49,10 @@ public interface SnakeManager {
 	 * @return true if direction was actually changed.
      */
     boolean changeSnakeDirection(Direction newDirection);
-   
-   /**
+
+    void setForbiddenSnakeDirection();
+
+    /**
      * <p>Applies any possible effects on snake (grow, speed up, etc...)</p>
      * @param powerUpEffect lambda that takes snake as arg and applies effect on it.
      */
