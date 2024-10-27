@@ -91,20 +91,46 @@ public class MenuWindow extends JPanel {
 			this.setBackground(background);
 
 			setPreferredSize(new Dimension(width, height));
-			GridLayout layout = new GridLayout(4,2);
-			layout.setHgap(10);
-			layout.setVgap(10);
+			GridBagLayout layout = new GridBagLayout();
 			setLayout(layout);
-			
+			setBackground(background);
+
+			GridBagConstraints c =  new GridBagConstraints();
+			c.anchor = GridBagConstraints.CENTER;
+			c.fill   = GridBagConstraints.NONE;
+			c.gridheight = 1;
+			c.gridwidth  = GridBagConstraints.RELATIVE;
+			c.gridx = 1;
+			c.gridy = 1;
+			c.insets = new Insets(40, 40, 40, 40);
+			c.ipadx = 0;
+			c.ipady = 0;
+			c.weightx = 0.0;
+			c.weighty = 0.0;
+
+			layout.setConstraints(startGameButton, c);
 			add(startGameButton);
-			add(new JLabel());
 			add(powerUpAmountChangerButton);
 			powerUpAmountChangerLabel = new JLabel(String.valueOf(powerUpsAmountChosenLimit));
 			add(powerUpAmountChangerLabel);
+			c.gridwidth  = 1;
+			c.gridy = 2;
+			layout.setConstraints(powerUpAmountChangerButton, c);
+			c.gridx = 2;
+			layout.setConstraints(powerUpAmountChangerLabel, c);
 			add(fieldSizeButton);
+			c.gridx = 1;
+			c.gridy = 3;
 			fieldSizeLabel = new JLabel(String.valueOf(mapSize));
 			add(fieldSizeLabel);
+			layout.setConstraints(fieldSizeButton, c);
+			c.gridx = 2;
+			layout.setConstraints(fieldSizeLabel, c);
 			add(exitButton);
+			c.gridwidth  = 2;
+			c.gridx = 1;
+			c.gridy = 4;
+			layout.setConstraints(exitButton, c);
 
 			Field infoTextColor = Class.forName("java.awt.Color").getField(props.getProperty("info_text_color"));
 			textColor = (Color)infoTextColor.get(null);
