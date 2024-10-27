@@ -156,6 +156,7 @@ public class GameViewModelImpl implements GameViewModel {
 	public void setSettings(ChosenSettingsDTO settings) {
 		model.getPowerUpManager().setPowerUpNumberLimit(settings.powerUpsLimit());
 		model.setDimension(new FieldDimension(settings.xAxisBlocksAmount(), settings.yAxisBlocksAmount()));
+		view.getGameWindow().setBlockDimension(settings.xAxisBlocksAmount(), settings.yAxisBlocksAmount());
 	}
 
 	/**

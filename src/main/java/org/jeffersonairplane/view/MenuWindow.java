@@ -24,6 +24,23 @@ public class MenuWindow extends JPanel {
 	private final JButton fieldSizeButton;
 	private final JButton exitButton;
 
+
+
+	JLabel powerUpAmountChangerLabel;
+	JLabel fieldSizeLabel;
+	
+	@Setter
+	private Consumer<WindowEvent> exitGame;
+	@Setter
+	private Consumer<ChosenSettingsDTO> settingsSetter;
+	@Setter
+	private Runnable gameRunner;
+	@Setter
+	private Runnable switchToGameplay;
+	@Setter
+	WindowEvent exitEvent;
+	private final Logger logger = Logger.getLogger(getClass().getName());
+
 	ActionListener actionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -45,21 +62,6 @@ public class MenuWindow extends JPanel {
 			}
 		}
 	};
-
-	JLabel powerUpAmountChangerLabel;
-	JLabel fieldSizeLabel;
-	
-	@Setter
-	private Consumer<WindowEvent> exitGame;
-	@Setter
-	private Consumer<ChosenSettingsDTO> settingsSetter;
-	@Setter
-	private Runnable gameRunner;
-	@Setter
-	private Runnable switchToGameplay;
-	@Setter
-	WindowEvent exitEvent;
-	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public MenuWindow() {
 		try {
