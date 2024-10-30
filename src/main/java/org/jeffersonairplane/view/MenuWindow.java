@@ -4,6 +4,7 @@ import org.jeffersonairplane.PropertiesLoader;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
@@ -74,15 +75,15 @@ public class MenuWindow extends JPanel {
 			powerUpsAmountMaxLimit = Integer.parseInt(props.getProperty("pu_number_limit_cap"));
 			mapSize = MapSize.MEDIUM;
 			
-			startGameButton = new JButton(props.getProperty("start_game_button_title"));
+			startGameButton = setButtonSettings(props.getProperty("start_game_button_title"));
 			startGameButton.addActionListener(actionListener);
-			powerUpAmountChangerButton = new JButton(props.getProperty("power_ups_amount_button_title"));
+			powerUpAmountChangerButton = setButtonSettings(props.getProperty("power_ups_amount_button_title"));
 			powerUpAmountChangerButton.addActionListener(actionListener);
-			fieldSizeButton = new JButton(props.getProperty("field_size_button_title"));
+			fieldSizeButton = setButtonSettings(props.getProperty("field_size_button_title"));
 			fieldSizeButton.addActionListener(actionListener);
-			exitButton = new JButton(props.getProperty("exit_button_title"));
+			exitButton = setButtonSettings(props.getProperty("exit_button_title"));
 			exitButton.addActionListener(actionListener);
-			
+
 			int width = Integer.parseInt(props.getProperty("game_window_width"));
 			int height = Integer.parseInt(props.getProperty("info_window_height"))
 					+ Integer.parseInt(props.getProperty("game_window_height"));
@@ -91,46 +92,32 @@ public class MenuWindow extends JPanel {
 			this.setBackground(background);
 
 			setPreferredSize(new Dimension(width, height));
-			GridBagLayout layout = new GridBagLayout();
-			setLayout(layout);
 			setBackground(background);
+			//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-			GridBagConstraints c =  new GridBagConstraints();
-			c.anchor = GridBagConstraints.CENTER;
-			c.fill   = GridBagConstraints.NONE;
-			c.gridheight = 1;
-			c.gridwidth  = GridBagConstraints.RELATIVE;
-			c.gridx = 1;
-			c.gridy = 1;
-			c.insets = new Insets(40, 40, 40, 40);
-			c.ipadx = 0;
-			c.ipady = 0;
-			c.weightx = 0.0;
-			c.weighty = 0.0;
+			JPanel container = new JPanel();
+			container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+			JLabel gameLabel = new JLabel("Snake Game");
+			container.add(gameLabel);
+			container.add(Box.createRigidArea(new Dimension(0, 20)));
+			container.add(startGameButton, BorderLayout.CENTER);
+			container.add(Box.createRigidArea(new Dimension(0, 20)));
+			container.add(powerUpAmountChangerButton);
+			container.add(Box.createRigidArea(new Dimension(0, 20)));
+			container.add(fieldSizeButton);
+			container.add(Box.createRigidArea(new Dimension(0, 20)));
+			container.add(exitButton, BorderLayout.CENTER);
+			add(container);
 
-			layout.setConstraints(startGameButton, c);
-			add(startGameButton);
-			add(powerUpAmountChangerButton);
+			container.setBackground(background);
+
 			powerUpAmountChangerLabel = new JLabel(String.valueOf(powerUpsAmountChosenLimit));
+			setComponentSize(powerUpAmountChangerLabel);
 			add(powerUpAmountChangerLabel);
-			c.gridwidth  = 1;
-			c.gridy = 2;
-			layout.setConstraints(powerUpAmountChangerButton, c);
-			c.gridx = 2;
-			layout.setConstraints(powerUpAmountChangerLabel, c);
-			add(fieldSizeButton);
-			c.gridx = 1;
-			c.gridy = 3;
 			fieldSizeLabel = new JLabel(String.valueOf(mapSize));
+			setComponentSize(fieldSizeLabel);
 			add(fieldSizeLabel);
-			layout.setConstraints(fieldSizeButton, c);
-			c.gridx = 2;
-			layout.setConstraints(fieldSizeLabel, c);
-			add(exitButton);
-			c.gridwidth  = 2;
-			c.gridx = 1;
-			c.gridy = 4;
-			layout.setConstraints(exitButton, c);
+
 
 			Field infoTextColor = Class.forName("java.awt.Color").getField(props.getProperty("info_text_color"));
 			textColor = (Color)infoTextColor.get(null);
@@ -141,10 +128,44 @@ public class MenuWindow extends JPanel {
 			fieldSizeLabel.setForeground(textColor);
 			fieldSizeLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
 					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
+			gameLabel.setForeground(textColor);
+			gameLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
+					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void setButtonLook(JButton btn) throws IOException {
+		Properties prop = PropertiesLoader.getProperties();
+		btn.setFocusPainted(Boolean.parseBoolean(prop.getProperty("btn_focus_painted")));
+		btn.setBackground(new Color(Integer.parseInt(prop.getProperty("btn_background_red")),
+				Integer.parseInt(prop.getProperty("btn_background_green")),
+				Integer.parseInt(prop.getProperty("btn_background_blue"))));
+		btn.setForeground(new Color(Integer.parseInt(prop.getProperty("btn_foreground_red")),
+				Integer.parseInt(prop.getProperty("btn_foreground_green")),
+				Integer.parseInt(prop.getProperty("btn_foreground_blue"))));
+		setFont(new Font(prop.getProperty("btn_font_title"),
+				Integer.parseInt(prop.getProperty("btn_font_type")),
+				Integer.parseInt(prop.getProperty("btn_font_size"))));
+	}
+
+	private void setComponentSize(JComponent btn) throws IOException {
+		Properties prop = PropertiesLoader.getProperties();
+		btn.setPreferredSize(new Dimension(Integer.parseInt(prop.getProperty("btn_preferred_width")),
+				Integer.parseInt(prop.getProperty("btn_preferred_height"))));
+		btn.setMinimumSize(new Dimension(Integer.parseInt(prop.getProperty("btn_preferred_width")),
+				Integer.parseInt(prop.getProperty("btn_preferred_height"))));
+		btn.setMaximumSize(new Dimension(Integer.parseInt(prop.getProperty("btn_preferred_width")),
+				Integer.parseInt(prop.getProperty("btn_preferred_height"))));
+	}
+
+	private JButton setButtonSettings(String title) throws IOException {
+		JButton btn = new JButton(title);
+		setButtonLook(btn);
+		setComponentSize(btn);
+		return btn;
 	}
 
 	public void updateCurrentPowerUpsAmount() {
