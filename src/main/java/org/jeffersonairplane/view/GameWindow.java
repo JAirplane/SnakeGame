@@ -79,17 +79,22 @@ public class GameWindow extends JPanel {
 			windowDimension = new RectangleDimension(Integer.parseInt(props.getProperty("game_window_width")),
 					Integer.parseInt(props.getProperty("game_window_height")));
 			this.setPreferredSize(new Dimension(windowDimension.width(), windowDimension.height()));
-			Field backgroundColor = Class.forName("java.awt.Color").getField(props.getProperty("playing_field_background_color"));
-			background = (Color)backgroundColor.get(null);
+			background = new Color(Integer.parseInt(props.getProperty("playing_field_background_color_red")),
+					Integer.parseInt(props.getProperty("playing_field_background_color_green")),
+					Integer.parseInt(props.getProperty("playing_field_background_color_blue")));
 			this.setBackground(background);
-			Field snakeColor = Class.forName("java.awt.Color").getField(props.getProperty("snake_color"));
-			snakeDefaultColor = (Color)snakeColor.get(null);
+			snakeDefaultColor = new Color(
+					Integer.parseInt(props.getProperty("snake_color_red")),
+					Integer.parseInt(props.getProperty("snake_color_green")),
+					Integer.parseInt(props.getProperty("snake_color_blue")));
 			snakeAnimationColorQueue = new LinkedList<>();
 			gameOverLabel = new JLabel();
 			gameOverLabel.setFont(new Font(props.getProperty("game_over_label_font"), Font.BOLD,
 					Integer.parseInt(props.getProperty("game_over_label_font_size"))));
-			Field gameOverTextColor = Class.forName("java.awt.Color").getField(props.getProperty("game_over_text_color"));
-			gameOverLabel.setForeground((Color)gameOverTextColor.get(null));
+			gameOverLabel.setForeground(new Color(
+					Integer.parseInt(props.getProperty("game_over_text_color_red")),
+					Integer.parseInt(props.getProperty("game_over_text_color_green")),
+					Integer.parseInt(props.getProperty("game_over_text_color_blue"))));
 			gameOverLabel.setText(messages.getGameOverMessage());
 			gameOverLabel.setVisible(false);
 			this.add(gameOverLabel);

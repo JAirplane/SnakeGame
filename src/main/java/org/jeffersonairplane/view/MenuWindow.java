@@ -7,7 +7,6 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.List;
 import java.util.function.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,16 +22,17 @@ public class MenuWindow extends JPanel {
 	
 	private final JButton startGameButton;
 	private final JButton powerUpAmountChangerButton;
+	private final String powerUpAmountChangerButtonMessage;
 	private final JButton fieldSizeButton;
+	private final String fieldSizeButtonMessage;
 	private final JButton exitButton;
 
 	@Getter @Setter
 	private Color background;
 	@Getter @Setter
-	private Color textColor;
-
-	JLabel powerUpAmountChangerLabel;
-	JLabel fieldSizeLabel;
+	private Color gameTitleColor;
+	@Getter @Setter
+	private Color controlsExplanationColor;
 	
 	@Setter
 	private Consumer<WindowEvent> exitGame;
@@ -74,30 +74,35 @@ public class MenuWindow extends JPanel {
 			powerUpsAmountChosenLimit = Integer.parseInt(props.getProperty("pu_number_limit"));
 			powerUpsAmountMaxLimit = Integer.parseInt(props.getProperty("pu_number_limit_cap"));
 			mapSize = MapSize.MEDIUM;
-			
-			startGameButton = setButtonSettings(props.getProperty("start_game_button_title"));
+			int btn_width = Integer.parseInt(props.getProperty("btn_preferred_width"));
+			int btn_height = Integer.parseInt(props.getProperty("btn_preferred_height"));
+			startGameButton = setButtonSettings(props.getProperty("start_game_button_title"), btn_width, btn_height);
 			startGameButton.addActionListener(actionListener);
-			powerUpAmountChangerButton = setButtonSettings(props.getProperty("power_ups_amount_button_title"));
+			powerUpAmountChangerButtonMessage = props.getProperty("power_ups_amount_button_title");
+			powerUpAmountChangerButton = setButtonSettings(powerUpAmountChangerButtonMessage + powerUpsAmountChosenLimit,
+					btn_width, btn_height);
 			powerUpAmountChangerButton.addActionListener(actionListener);
-			fieldSizeButton = setButtonSettings(props.getProperty("field_size_button_title"));
+			fieldSizeButtonMessage = props.getProperty("field_size_button_title");
+			fieldSizeButton = setButtonSettings(fieldSizeButtonMessage + mapSize, btn_width, btn_height);
 			fieldSizeButton.addActionListener(actionListener);
-			exitButton = setButtonSettings(props.getProperty("exit_button_title"));
+			exitButton = setButtonSettings(props.getProperty("exit_button_title"), btn_width, btn_height);
 			exitButton.addActionListener(actionListener);
 
 			int width = Integer.parseInt(props.getProperty("game_window_width"));
 			int height = Integer.parseInt(props.getProperty("info_window_height"))
 					+ Integer.parseInt(props.getProperty("game_window_height"));
-			Field backgroundColor = Class.forName("java.awt.Color").getField(props.getProperty("playing_field_background_color"));
-			background = (Color)backgroundColor.get(null);
+			background = new Color(Integer.parseInt(props.getProperty("menu_background_red")),
+					Integer.parseInt(props.getProperty("menu_background_green")),
+					Integer.parseInt(props.getProperty("menu_background_blue")));
 			this.setBackground(background);
 
 			setPreferredSize(new Dimension(width, height));
 			setBackground(background);
-			//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 			JPanel container = new JPanel();
 			container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-			JLabel gameLabel = new JLabel("Snake Game");
+			JLabel gameLabel = new JLabel(props.getProperty("game_title"));
+			setComponentSize(gameLabel, btn_width, Integer.parseInt(props.getProperty("game_title_preferred_height")));
 			container.add(gameLabel);
 			container.add(Box.createRigidArea(new Dimension(0, 20)));
 			container.add(startGameButton, BorderLayout.CENTER);
@@ -107,30 +112,28 @@ public class MenuWindow extends JPanel {
 			container.add(fieldSizeButton);
 			container.add(Box.createRigidArea(new Dimension(0, 20)));
 			container.add(exitButton, BorderLayout.CENTER);
+			JLabel controlsExplanation = new JLabel(props.getProperty("controls_explanation_text"));
+			container.add(Box.createRigidArea(new Dimension(0, 20)));
+			setComponentSize(controlsExplanation, btn_width,
+					Integer.parseInt(props.getProperty("controls_explanation_preferred_height")));
+			container.add(controlsExplanation);
 			add(container);
 
 			container.setBackground(background);
 
-			powerUpAmountChangerLabel = new JLabel(String.valueOf(powerUpsAmountChosenLimit));
-			setComponentSize(powerUpAmountChangerLabel);
-			add(powerUpAmountChangerLabel);
-			fieldSizeLabel = new JLabel(String.valueOf(mapSize));
-			setComponentSize(fieldSizeLabel);
-			add(fieldSizeLabel);
+			gameTitleColor = new Color(Integer.parseInt(props.getProperty("game_label_foreground_red")),
+					Integer.parseInt(props.getProperty("game_label_foreground_green")),
+					Integer.parseInt(props.getProperty("game_label_foreground_blue")));
+			gameLabel.setForeground(gameTitleColor);
+			gameLabel.setFont(new Font(props.getProperty("game_label_font_title"), Font.BOLD,
+					Integer.parseInt(props.getProperty("game_label_font_size"))));
 
-
-			Field infoTextColor = Class.forName("java.awt.Color").getField(props.getProperty("info_text_color"));
-			textColor = (Color)infoTextColor.get(null);
-
-			powerUpAmountChangerLabel.setForeground(textColor);
-			powerUpAmountChangerLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
-					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
-			fieldSizeLabel.setForeground(textColor);
-			fieldSizeLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
-					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
-			gameLabel.setForeground(textColor);
-			gameLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,
-					Integer.parseInt(props.getProperty("gameplay_info_label_font_size"))));
+			controlsExplanationColor = new Color(Integer.parseInt(props.getProperty("controls_explanation_foreground_red")),
+					Integer.parseInt(props.getProperty("controls_explanation_foreground_green")),
+					Integer.parseInt(props.getProperty("controls_explanation_foreground_blue")));
+			controlsExplanation.setForeground(gameTitleColor);
+			controlsExplanation.setFont(new Font(props.getProperty("controls_explanation_font_title"), Font.ITALIC,
+					Integer.parseInt(props.getProperty("controls_explanation_font_size"))));
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
@@ -146,25 +149,21 @@ public class MenuWindow extends JPanel {
 		btn.setForeground(new Color(Integer.parseInt(prop.getProperty("btn_foreground_red")),
 				Integer.parseInt(prop.getProperty("btn_foreground_green")),
 				Integer.parseInt(prop.getProperty("btn_foreground_blue"))));
-		setFont(new Font(prop.getProperty("btn_font_title"),
+		btn.setFont(new Font(prop.getProperty("btn_font_title"),
 				Integer.parseInt(prop.getProperty("btn_font_type")),
 				Integer.parseInt(prop.getProperty("btn_font_size"))));
 	}
 
-	private void setComponentSize(JComponent btn) throws IOException {
-		Properties prop = PropertiesLoader.getProperties();
-		btn.setPreferredSize(new Dimension(Integer.parseInt(prop.getProperty("btn_preferred_width")),
-				Integer.parseInt(prop.getProperty("btn_preferred_height"))));
-		btn.setMinimumSize(new Dimension(Integer.parseInt(prop.getProperty("btn_preferred_width")),
-				Integer.parseInt(prop.getProperty("btn_preferred_height"))));
-		btn.setMaximumSize(new Dimension(Integer.parseInt(prop.getProperty("btn_preferred_width")),
-				Integer.parseInt(prop.getProperty("btn_preferred_height"))));
+	private void setComponentSize(JComponent btn, int width, int height) throws IOException {
+		btn.setPreferredSize(new Dimension(width, height));
+		btn.setMinimumSize(new Dimension(width, height));
+		btn.setMaximumSize(new Dimension(width, height));
 	}
 
-	private JButton setButtonSettings(String title) throws IOException {
+	private JButton setButtonSettings(String title, int width, int height) throws IOException {
 		JButton btn = new JButton(title);
 		setButtonLook(btn);
-		setComponentSize(btn);
+		setComponentSize(btn, width, height);
 		return btn;
 	}
 
@@ -173,7 +172,7 @@ public class MenuWindow extends JPanel {
 			powerUpsAmountChosenLimit = 1;
 		}
 		else ++powerUpsAmountChosenLimit;
-		powerUpAmountChangerLabel.setText(String.valueOf(powerUpsAmountChosenLimit));
+		powerUpAmountChangerButton.setText(powerUpAmountChangerButtonMessage + powerUpsAmountChosenLimit);
 	}
 	
 	public void updateMapSize() {
@@ -183,6 +182,6 @@ public class MenuWindow extends JPanel {
 			case LARGE -> mapSize = MapSize.SMALL;
 			default -> throw new IllegalStateException("Unknown MapSize state.");
 		}
-		fieldSizeLabel.setText(String.valueOf(mapSize));
+		fieldSizeButton.setText(fieldSizeButtonMessage + mapSize);
 	}
 }

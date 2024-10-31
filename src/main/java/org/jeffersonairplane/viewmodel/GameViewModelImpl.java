@@ -23,6 +23,7 @@ public class GameViewModelImpl implements GameViewModel {
 	private final GameView view;
 	private final GameModel model;
 
+	private final Animations animations;
 	private final int frameMilliseconds;
 	private boolean pause;
 	private boolean gameOver;
@@ -34,8 +35,9 @@ public class GameViewModelImpl implements GameViewModel {
 	 * @param view is a view part of program.
 	 * @param model is a model part of program.
 	 */
-	public GameViewModelImpl(GameView view, GameModel model) {
+	public GameViewModelImpl(GameView view, GameModel model, Animations animations) {
 		try {
+			this.animations = animations;
 			this.view = view;
 			this.view.setSettingsSetter(this::setSettings);
 			this.view.setGameRunner(this::runGameplay);
@@ -233,10 +235,10 @@ public class GameViewModelImpl implements GameViewModel {
 	 */
 	public List<Color> getPowerUpAnimation(PowerUp powerUp) {
 		if(powerUp instanceof Apple) {
-			return Animations.getAppleTakenSnakeAnimation();
+			return animations.getAppleTakenSnakeAnimation();
 		}
 		else if (powerUp instanceof TailCutter) {
-			return Animations.getTailCutterTakenSnakeAnimation();
+			return animations.getTailCutterTakenSnakeAnimation();
 		}
 		return new ArrayList<>();
 	}

@@ -61,11 +61,13 @@ public class InfoWindow extends JPanel {
 			this.setPreferredSize(
 					new Dimension(Integer.parseInt(props.getProperty("game_window_width")),
 							Integer.parseInt(props.getProperty("info_window_height"))));
-			Field backgroundColor = Class.forName("java.awt.Color").getField(props.getProperty("info_window_background_color"));
-			background = (Color)backgroundColor.get(null);
+			background = new Color(Integer.parseInt(props.getProperty("info_window_background_color_red")),
+					Integer.parseInt(props.getProperty("info_window_background_color_green")),
+					Integer.parseInt(props.getProperty("info_window_background_color_blue")));
 			this.setBackground(background);
-			Field infoTextColor = Class.forName("java.awt.Color").getField(props.getProperty("info_text_color"));
-			textColor = (Color)infoTextColor.get(null);
+			textColor = new Color(Integer.parseInt(props.getProperty("info_text_color_red")),
+					Integer.parseInt(props.getProperty("info_text_color_green")),
+					Integer.parseInt(props.getProperty("info_text_color_blue")));
 
 			infoLabel.setForeground(textColor);
 			infoLabel.setFont(new Font(props.getProperty("gameplay_info_label_font"), Font.BOLD,

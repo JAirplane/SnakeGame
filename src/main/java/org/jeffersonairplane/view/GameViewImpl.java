@@ -93,12 +93,14 @@ public class GameViewImpl implements GameView {
 	public void setPowerUpColors() {
 		try {
 			Properties props = PropertiesLoader.getProperties();
-			Field appleColor = Class.forName("java.awt.Color")
-					.getField(props.getProperty("apple_color"));
-			PowerUpTypesView.APPLE.setColor((Color)appleColor.get(null));
-			Field tailCutterColor = Class.forName("java.awt.Color")
-					.getField(props.getProperty("tail_cutter_color"));
-			PowerUpTypesView.TAILCUTTER.setColor((Color)tailCutterColor.get(null));
+			PowerUpTypesView.APPLE.setColor(new Color(
+					Integer.parseInt(props.getProperty("apple_color_red")),
+					Integer.parseInt(props.getProperty("apple_color_green")),
+					Integer.parseInt(props.getProperty("apple_color_blue"))));
+			PowerUpTypesView.TAILCUTTER.setColor(new Color(
+					Integer.parseInt(props.getProperty("tail_cutter_color_red")),
+					Integer.parseInt(props.getProperty("tail_cutter_color_green")),
+					Integer.parseInt(props.getProperty("tail_cutter_color_blue"))));
 			logger.log(Level.FINE, "Creation chances set.");
 		}
 		catch (Exception e) {
