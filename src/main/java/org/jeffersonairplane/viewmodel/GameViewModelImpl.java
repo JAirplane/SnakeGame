@@ -44,6 +44,7 @@ public class GameViewModelImpl implements GameViewModel {
 			this.view.getFrame().setMovement(model::changeSnakeDirection);
 			this.view.getFrame().setRerun(this::rerunAfterGameOver);
 			this.view.getFrame().setTogglePause(this::togglePause);
+			this.view.getFrame().setToMenu(this.view.getGameWindow()::showGameOverMessage);
 			this.view.getFrame().setGameplayInputs();
 			this.model = model;
 			frameMilliseconds = Integer.parseInt(PropertiesLoader.getProperties().getProperty("frame_milliseconds"));

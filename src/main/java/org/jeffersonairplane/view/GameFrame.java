@@ -30,6 +30,8 @@ public class GameFrame extends JFrame {
 	private Runnable rerun;
 	@Setter
 	private Runnable togglePause;
+	@Setter
+	private Consumer<Boolean> toMenu;
 
 	/**
 	* Constructor.
@@ -82,6 +84,9 @@ public class GameFrame extends JFrame {
 		String pause = "Pause";
 		gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
 				.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), pause);
+		String returnToMenu = "Return To Menu";
+		gameWindow.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), returnToMenu);
 
 		gameWindow.getActionMap().put(moveUp, new MoveAction(Direction.UP));
 		gameWindow.getActionMap().put(moveDown, new MoveAction(Direction.DOWN));
@@ -97,6 +102,13 @@ public class GameFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				togglePause.run();
+			}
+		});
+		gameWindow.getActionMap().put(returnToMenu, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toMenu.accept(false);
+				menu();
 			}
 		});
 	}
