@@ -31,7 +31,7 @@ public class GameFrame extends JFrame {
 	@Setter
 	private Runnable togglePause;
 	@Setter
-	private Consumer<Boolean> toMenu;
+	private Runnable toMenu;
 
 	/**
 	* Constructor.
@@ -107,8 +107,7 @@ public class GameFrame extends JFrame {
 		gameWindow.getActionMap().put(returnToMenu, new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				toMenu.accept(false);
-				menu();
+				toMenu.run();
 			}
 		});
 	}
@@ -140,6 +139,4 @@ public class GameFrame extends JFrame {
 			movement.accept(direction);
 		}
 	}
-
-
 }

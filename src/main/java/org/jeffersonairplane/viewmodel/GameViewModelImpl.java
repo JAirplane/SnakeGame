@@ -5,7 +5,6 @@ import org.jeffersonairplane.view.*;
 import org.jeffersonairplane.model.*;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -33,10 +32,11 @@ public class GameViewModelImpl implements GameViewModel {
 	/**
 	 * Constructor.
 	 * @param view is a view part of program.
-	 * @param model is a model part of program.
+	 * @param animations is a snake animations storage.
 	 */
-	public GameViewModelImpl(GameView view, GameModel model, Animations animations) {
+	public GameViewModelImpl(GameView view, Animations animations) {
 		try {
+			model = new GameModelImpl();
 			this.animations = animations;
 			this.view = view;
 			this.view.setSettingsSetter(this::setSettings);
@@ -44,9 +44,8 @@ public class GameViewModelImpl implements GameViewModel {
 			this.view.getFrame().setMovement(model::changeSnakeDirection);
 			this.view.getFrame().setRerun(this::rerunAfterGameOver);
 			this.view.getFrame().setTogglePause(this::togglePause);
-			this.view.getFrame().setToMenu(this.view.getGameWindow()::showGameOverMessage);
+			this.view.getFrame().setToMenu(this::switchToMenu);
 			this.view.getFrame().setGameplayInputs();
-			this.model = model;
 			frameMilliseconds = Integer.parseInt(PropertiesLoader.getProperties().getProperty("frame_milliseconds"));
 			model.registerPowerUpTakenObserver(this);
 		} catch (Exception e) {
@@ -99,7 +98,7 @@ public class GameViewModelImpl implements GameViewModel {
 	}
 	
 	/**
-	 * Creates map of types as a keys and collection of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} as values for every exsting power up.
+	 * Creates map of types as a keys and collection of {@link org.jeffersonairplane.view.RectangleUpperLeftPoint} as values for every existing power up.
 	 * Sends map ti View for painting.
 	 */
 	public void setPowerUpsDataForPainting() {
@@ -133,8 +132,8 @@ public class GameViewModelImpl implements GameViewModel {
 	public boolean gameOneFrame() {
 		try {
 			if(!pause) {
-				gameOver = model.oneFrameGameAction();
 				if(!gameOver) {
+					gameOver = model.oneFrameGameAction();
 					drawGame();
 				}
 				else {
@@ -154,12 +153,30 @@ public class GameViewModelImpl implements GameViewModel {
     }
 
 	/**
-	 * Sets user settings from menu.
+	 * Sets user settings from menu and initializes model parts.
 	 */
 	public void setSettings(ChosenSettingsDTO settings) {
-		model.getPowerUpManager().setPowerUpNumberLimit(settings.powerUpsLimit());
 		model.setDimension(new FieldDimension(settings.xAxisBlocksAmount(), settings.yAxisBlocksAmount()));
+		model.initializeSnakeManager();
+		model.initializePowerUpManager();
+		model.setFramesCounter(0);
+		model.setScore(0);
+		model.getPowerUpManager().setPowerUpNumberLimit(settings.powerUpsLimit());
 		view.getGameWindow().setBlockDimension(settings.xAxisBlocksAmount(), settings.yAxisBlocksAmount());
+		view.getGameWindow().showGameOverMessage(false);
+		gameOver = false;
+		pause = false;
+	}
+
+	public void switchToMenu() {
+		if(gameOver || pause) {
+			if(pause) {
+				gameOver = true;
+				togglePause();
+			}
+			view.resetState();
+			view.getFrame().menu();
+		}
 	}
 
 	/**

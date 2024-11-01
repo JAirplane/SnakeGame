@@ -4,6 +4,7 @@ import lombok.*;
 import org.jeffersonairplane.*;
 import org.jeffersonairplane.viewmodel.Direction;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.*;
 import java.util.logging.*;
@@ -17,9 +18,9 @@ public class GameModelImpl implements GameModel {
 	@Getter @Setter
 	private FieldDimension dimension;
 	@Getter
-    private final SnakeManager snakeManager;
+    private SnakeManager snakeManager;
 	@Getter
-	private final PowerUpManager powerUpManager;
+	private PowerUpManager powerUpManager;
 	@Getter @Setter
 	private long framesCounter = 0;
 	@Getter @Setter
@@ -43,34 +44,58 @@ public class GameModelImpl implements GameModel {
     }
 	
 	/**
-	 * No args constructor receives all necessary data from {@link Properties}.
+	 * No args constructor.
+	 * Further initialization needed.
 	 */
-	public GameModelImpl() {
+	public GameModelImpl() {}
+
+	/**
+	 * Initialization of snake manager and snake blocks filling.
+	 * @return true if created, false otherwise.
+	 */
+	@Override
+	public boolean initializeSnakeManager() {
 		try {
-			Properties props = PropertiesLoader.getProperties();
-			int xAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_x"));
-			int yAxisBlocks = Integer.parseInt(props.getProperty("blocks_amount_y"));
-			dimension = new FieldDimension(xAxisBlocks, yAxisBlocks);
-			
-			snakeManager = new SnakeManagerImpl();
-			snakeManager.fillSnake(
-				Integer.parseInt(props.getProperty("initial_snake_size")),
-				new Coordinate(xAxisBlocks / 2, yAxisBlocks / 2),
-                Direction.RIGHT,
-				xAxisBlocks,
-				yAxisBlocks);
-			powerUpManager = new PowerUpManagerImpl(
-				Integer.parseInt(props.getProperty("pu_number_limit")),
-				Integer.parseInt(props.getProperty("pu_creation_delay_min")),
-				Integer.parseInt(props.getProperty("pu_creation_delay_max")));
-			logger.log(Level.FINE, "Model created.");
+			if(dimension != null) {
+				Properties props = PropertiesLoader.getProperties();
+				snakeManager = new SnakeManagerImpl();
+				snakeManager.fillSnake(
+						Integer.parseInt(props.getProperty("initial_snake_size")),
+						new Coordinate(dimension.blocksAmountXAxis() / 2, dimension.blocksAmountYAxis() / 2),
+						Direction.RIGHT,
+						dimension.blocksAmountXAxis(),
+						dimension.blocksAmountYAxis());
+				logger.log(Level.FINE, "Snake manager initialized. Snake created.");
+				return true;
+			}
+			return false;
 		}
-		catch (Exception e) {
+		catch (IOException e) {
 			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	/**
+	 * Initialization of power up manager with default values.
+	 */
+	@Override
+	public void initializePowerUpManager() {
+		try {
+			Properties props = PropertiesLoader.getProperties();
+
+			powerUpManager = new PowerUpManagerImpl(
+					Integer.parseInt(props.getProperty("pu_number_limit")),
+					Integer.parseInt(props.getProperty("pu_creation_delay_min")),
+					Integer.parseInt(props.getProperty("pu_creation_delay_max")));
+			logger.log(Level.FINE, "Power Up manager created.");
+		}
+		catch (IOException e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+			throw new RuntimeException(e);
+		}
+	}
+
 	/**
 	 * Sets chance of creation for every power up type in the game.
 	 */

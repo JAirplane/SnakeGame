@@ -9,8 +9,12 @@ import java.util.*;
  * Contains data and game logic.
  */
 public interface GameModel extends PowerUpTakenObservable {
-	
-	/**
+
+	boolean initializeSnakeManager();
+
+	void initializePowerUpManager();
+
+    /**
 	 * Sets chance of creation for every power up type in the game.
 	 */
 	void setPowerUpTypesCreationChances();

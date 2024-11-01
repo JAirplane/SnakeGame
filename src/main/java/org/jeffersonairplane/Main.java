@@ -12,8 +12,6 @@ public class Main {
 		var model = new GameModelImpl();
 		model.setPowerUpTypesCreationChances();
 		view.setPowerUpColors();
-        GameViewModel gameViewModel = new GameViewModelImpl(view, model, new Animations());
-
-		//gameViewModel.runGameplay();
+        GameViewModel gameViewModel = new GameViewModelImpl(view, new Animations());
     }
 }

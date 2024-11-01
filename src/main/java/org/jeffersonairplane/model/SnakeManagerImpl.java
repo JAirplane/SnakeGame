@@ -16,7 +16,7 @@ import java.util.logging.*;
 public class SnakeManagerImpl implements SnakeManager {
 	
 	private final Snake snake;
-	@Setter
+	@Getter @Setter
 	private int snakeMovementRhythm;
 
 	private final Logger logger = Logger.getLogger(getClass().getName());

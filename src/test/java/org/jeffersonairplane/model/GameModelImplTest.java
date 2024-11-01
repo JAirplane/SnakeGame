@@ -1,5 +1,6 @@
 package org.jeffersonairplane.model;
 
+import org.jeffersonairplane.PropertiesLoader;
 import org.jeffersonairplane.viewmodel.Direction;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
@@ -17,6 +18,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.logging.*;
 import java.util.stream.*;
 import java.util.*;
@@ -44,7 +46,37 @@ class GameModelImplTest {
 				new FieldDimension(10, 10),
 				snakeManager, powerUpManager);
 	}
-	
+
+	@Test
+	void initializeSnakeManagerTest() {
+        try {
+            Properties props = PropertiesLoader.getProperties();
+			model.setDimension(new FieldDimension(10, 10));
+			Snake test = new Snake();
+			for(int i = 0; i < 5; i++) {
+				test.getSnakeBlocks().offerFirst(new Coordinate(5 - i, 5));
+			}
+			model.initializeSnakeManager();
+			boolean snakesEquals = test.equals(model.getSnakeManager().getSnake());
+			boolean snakeRhythmEquals = model.getSnakeManager().getSnakeMovementRhythm() == Integer.parseInt(props.getProperty("snake_move_delay"));
+			assertTrue(snakesEquals && snakeRhythmEquals);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+	}
+
+	@Test
+	public void initializePowerUpManagerTest() {
+		try {
+			Properties props = PropertiesLoader.getProperties();
+			model.initializePowerUpManager();
+            assertEquals(model.getPowerUpManager().getPowerUpNumberLimit(), Integer.parseInt(props.getProperty("pu_number_limit")));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Test
 	void getSnakeTest() {
 		Snake snake = new Snake();

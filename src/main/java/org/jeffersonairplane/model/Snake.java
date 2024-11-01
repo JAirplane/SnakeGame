@@ -30,7 +30,9 @@ public class Snake {
 	 * Sets current snake direction to RIGHT by default.
 	 */
     public Snake() {
-		direction = Direction.RIGHT;
+
+        direction = Direction.RIGHT;
+        forbidenDirection = Direction.LEFT;
     }
 
     /**
