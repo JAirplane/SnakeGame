@@ -11,11 +11,13 @@ import java.util.logging.Logger;
  * Stores messages shown when power up taken
  */
 public class GameMessages {
-    private final List<String> messages = new ArrayList<>();
+    private final List<String> powerUpMessages = new ArrayList<>();
 	@Getter @Setter
 	private String scoreMessage;
     @Getter @Setter
     private String gameOverMessage;
+    @Getter @Setter
+    private String pauseMessage;
 
     private final Logger logger = Logger.getLogger(getClass().getName());
     /**
@@ -25,9 +27,10 @@ public class GameMessages {
         try {
             Properties props = PropertiesLoader.getProperties();
             scoreMessage = props.getProperty("score_message");
-            messages.add(props.getProperty("apple_message"));
-            messages.add(props.getProperty("tail_cutter_message"));
+            powerUpMessages.add(props.getProperty("apple_message"));
+            powerUpMessages.add(props.getProperty("tail_cutter_message"));
             gameOverMessage = props.getProperty("game_over_message");
+            pauseMessage = props.getProperty("pause_message");
         }
         catch(Exception e) {
             logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
@@ -41,7 +44,7 @@ public class GameMessages {
      * 0 index is Apple.
      */
     public void setPowerUpMessage(int index, String message) {
-        messages.set(index, message);
+        powerUpMessages.set(index, message);
     }
 
     /**
@@ -49,6 +52,6 @@ public class GameMessages {
      * 0 is Apple.
      */
     public String getPowerUpMessage(int index) {
-        return messages.get(index);
+        return powerUpMessages.get(index);
     }
 }

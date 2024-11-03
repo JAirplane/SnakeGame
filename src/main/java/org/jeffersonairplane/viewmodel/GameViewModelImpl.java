@@ -26,6 +26,7 @@ public class GameViewModelImpl implements GameViewModel {
 	private final int frameMilliseconds;
 	private boolean pause;
 	private boolean gameOver;
+	private boolean terminateGame;
 
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	
@@ -60,6 +61,7 @@ public class GameViewModelImpl implements GameViewModel {
 	@Override
 	public void togglePause() {
 		pause = !pause;
+		view.getGameWindow().showPauseMessage(pause);
 	}
 
 	/**
@@ -134,15 +136,15 @@ public class GameViewModelImpl implements GameViewModel {
 			if(!pause) {
 				if(!gameOver) {
 					gameOver = model.oneFrameGameAction();
+					if(gameOver) {
+						view.getGameWindow().getPowerUps().clear();
+						view.getGameWindow().getSnakeAnimationColorQueue().clear();
+						view.repaintGameWindow();
+						view.getGameWindow().showGameOverMessage(true);
+						return true;
+					}
 					drawGame();
 				}
-				else {
-					view.getGameWindow().getPowerUps().clear();
-					view.getGameWindow().getSnakeAnimationColorQueue().clear();
-					view.repaintGameWindow();
-					view.getGameWindow().showGameOverMessage(true);
-				}
-				return gameOver;
 			}
 			return false;
 		}
@@ -166,14 +168,12 @@ public class GameViewModelImpl implements GameViewModel {
 		view.getGameWindow().showGameOverMessage(false);
 		gameOver = false;
 		pause = false;
+		terminateGame = false;
 	}
 
 	public void switchToMenu() {
 		if(gameOver || pause) {
-			if(pause) {
-				gameOver = true;
-				togglePause();
-			}
+			terminateGame = true;
 			view.resetState();
 			view.getFrame().menu();
 		}
@@ -187,8 +187,8 @@ public class GameViewModelImpl implements GameViewModel {
 		var executor = Executors.newScheduledThreadPool(1);
 		executor.scheduleAtFixedRate(() -> {
 			boolean gameOver = gameOneFrame();
-			if(gameOver) executor.shutdown();
-		}, 10, frameMilliseconds, TimeUnit.MILLISECONDS);
+			if(gameOver || terminateGame) executor.shutdown();
+		}, 50, frameMilliseconds, TimeUnit.MILLISECONDS);
 	}
 
 	/**

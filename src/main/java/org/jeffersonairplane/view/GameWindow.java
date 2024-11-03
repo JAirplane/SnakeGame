@@ -2,7 +2,7 @@ package org.jeffersonairplane.view;
 
 import java.awt.*;
 import javax.swing.*;
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -16,7 +16,7 @@ import org.jeffersonairplane.PropertiesLoader;
 */
 public class GameWindow extends JPanel {
 
-	private final JLabel gameOverLabel;
+	private final JLabel inGameMessageLabel;
     private final RectangleDimension windowDimension;
 	@Getter
 	private RectangleDimension blockDimension;
@@ -58,12 +58,12 @@ public class GameWindow extends JPanel {
 		this.background = background;
 		this.snakeDefaultColor = snakeDefaultColor;
 		snakeAnimationColorQueue = new LinkedList<>();
-		gameOverLabel = new JLabel();
-		gameOverLabel.setFont(gameOverLabelFont);
-		gameOverLabel.setForeground(gameOverTextColor);
-		gameOverLabel.setText(messages.getGameOverMessage());
-		gameOverLabel.setVisible(false);
-		this.add(gameOverLabel);
+		inGameMessageLabel = new JLabel();
+		inGameMessageLabel.setFont(gameOverLabelFont);
+		inGameMessageLabel.setForeground(gameOverTextColor);
+		inGameMessageLabel.setText(messages.getGameOverMessage());
+		inGameMessageLabel.setVisible(false);
+		this.add(inGameMessageLabel);
 		setBlockDimension(blocksAmountX, blocksAmountY);
     }
 
@@ -88,17 +88,10 @@ public class GameWindow extends JPanel {
 					Integer.parseInt(props.getProperty("snake_color_green")),
 					Integer.parseInt(props.getProperty("snake_color_blue")));
 			snakeAnimationColorQueue = new LinkedList<>();
-			gameOverLabel = new JLabel();
-			gameOverLabel.setFont(new Font(props.getProperty("game_over_label_font"), Font.BOLD,
-					Integer.parseInt(props.getProperty("game_over_label_font_size"))));
-			gameOverLabel.setForeground(new Color(
-					Integer.parseInt(props.getProperty("game_over_text_color_red")),
-					Integer.parseInt(props.getProperty("game_over_text_color_green")),
-					Integer.parseInt(props.getProperty("game_over_text_color_blue"))));
-			gameOverLabel.setText(messages.getGameOverMessage());
-			gameOverLabel.setVisible(false);
-			this.add(gameOverLabel);
+			inGameMessageLabel = new JLabel();
 
+			inGameMessageLabel.setVisible(false);
+			this.add(inGameMessageLabel);
 			setBlockDimension(Integer.parseInt(props.getProperty("blocks_amount_x")),
 					Integer.parseInt(props.getProperty("blocks_amount_y")));
 		}
@@ -109,18 +102,55 @@ public class GameWindow extends JPanel {
 	}
 
 	/**
-	 * Sets new text color for game over message.
-	 * @param color to set.
+	 * Shows message on game playing field.
+	 * @param show true to show, false to hide.
+	 * @param message is a text to show.
+	 * @param textFont is a font for message.
+	 * @param textColor is a message color.
 	 */
-	public void setTextColor(Color color) {
-		gameOverLabel.setForeground(color);
+	public void showInGameMessage(boolean show, String message, Font textFont, Color textColor) {
+		if(show) {
+			inGameMessageLabel.setFont(textFont);
+			inGameMessageLabel.setText(message);
+			inGameMessageLabel.setForeground(textColor);
+		}
+		inGameMessageLabel.setVisible(show);
 	}
 
 	/**
 	 * Shows game over message.
+	 * @param show true to show, false to hide.
 	 */
 	public void showGameOverMessage(boolean show) {
-		gameOverLabel.setVisible(show);
+		try {
+			Properties props = PropertiesLoader.getProperties();
+			Font messageFont = new Font(props.getProperty("game_over_label_font"), Font.BOLD,
+					Integer.parseInt(props.getProperty("game_over_label_font_size")));
+			Color messageColor = new Color(
+					Integer.parseInt(props.getProperty("game_over_text_color_red")),
+					Integer.parseInt(props.getProperty("game_over_text_color_green")),
+					Integer.parseInt(props.getProperty("game_over_text_color_blue")));
+			showInGameMessage(show, messages.getGameOverMessage(), messageFont, messageColor);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void showPauseMessage(boolean show) {
+		try {
+			Properties props = PropertiesLoader.getProperties();
+			Font messageFont = new Font(props.getProperty("pause_label_font"), Font.BOLD,
+					Integer.parseInt(props.getProperty("pause_label_font_size")));
+			Color messageColor = new Color(
+					Integer.parseInt(props.getProperty("pause_text_color_red")),
+					Integer.parseInt(props.getProperty("pause_text_color_green")),
+					Integer.parseInt(props.getProperty("pause_text_color_blue")));
+			showInGameMessage(show, messages.getPauseMessage(), messageFont, messageColor);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, e.getMessage() + " " + Arrays.toString(e.getStackTrace()));
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
